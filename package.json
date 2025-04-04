@@ -4,6 +4,7 @@
   "description": "Zonos Commerce Next.js Boilerplate",
   "license": "MIT",
   "private": true,
+  "packageManager": "pnpm@8.15.8",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
