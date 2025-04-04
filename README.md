@@ -1,75 +1,118 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fcommerce&project-name=commerce&repo-name=commerce&demo-title=Next.js%20Commerce&demo-url=https%3A%2F%2Fdemo.vercel.store&demo-image=https%3A%2F%2Fbigcommerce-demo-asset-ksvtgfvnd.vercel.app%2Fbigcommerce.png&env=COMPANY_NAME,SHOPIFY_REVALIDATION_SECRET,SHOPIFY_STORE_DOMAIN,SHOPIFY_STOREFRONT_ACCESS_TOKEN,SITE_NAME)
+# Zonos Commerce
 
-# Next.js Commerce
+A high-performance, server-rendered Next.js App Router e-commerce application with integrated Zonos Elements for cross-border commerce.
 
-A high-performance, server-rendered Next.js App Router ecommerce application.
+## Overview
 
-This template uses React Server Components, Server Actions, `Suspense`, `useOptimistic`, and more.
+Zonos Commerce is a feature-rich e-commerce application built on the framework of [Next.js Commerce](https://github.com/vercel/commerce) that integrates with Zonos Elements to provide seamless cross-border shopping experiences. The platform leverages Zonos Hello for accurate duty and tax calculations and Zonos Checkout for international checkout processing.
 
-<h3 id="v1-note"></h3>
+For detailed technical specifications and architecture, please refer to [SPECS.md](./SPECS.md).
 
-> Note: Looking for Next.js Commerce v1? View the [code](https://github.com/vercel/commerce/tree/v1), [demo](https://commerce-v1.vercel.store), and [release notes](https://github.com/vercel/commerce/releases/tag/v1).
+## Customization and Updates
 
-## Providers
+We recommend merchants **fork this repository** rather than using it directly. By forking the repository:
 
-Vercel will only be actively maintaining a Shopify version [as outlined in our vision and strategy for Next.js Commerce](https://github.com/vercel/commerce/pull/966).
+1. You can make your own customizations and changes to fit your specific business needs
+2. You can easily pull in upstream changes when Zonos Commerce is updated with new features or dependencies
+3. You maintain full control over your codebase while benefiting from continuous improvements
 
-Vercel is happy to partner and work with any commerce provider to help them get a similar template up and running and listed below. Alternative providers should be able to fork this repository and swap out the `lib/shopify` file with their own implementation while leaving the rest of the template mostly unchanged.
+To fork the repository, use GitHub's fork functionality, clone your forked repository, add the original repository as an upstream remote, and pull in updates when needed.
 
-- Shopify (this repository)
-- [BigCommerce](https://github.com/bigcommerce/nextjs-commerce) ([Demo](https://next-commerce-v2.vercel.app/))
-- [Ecwid by Lightspeed](https://github.com/Ecwid/ecwid-nextjs-commerce/) ([Demo](https://ecwid-nextjs-commerce.vercel.app/))
-- [Geins](https://github.com/geins-io/vercel-nextjs-commerce) ([Demo](https://geins-nextjs-commerce-starter.vercel.app/))
-- [Medusa](https://github.com/medusajs/vercel-commerce) ([Demo](https://medusa-nextjs-commerce.vercel.app/))
-- [Prodigy Commerce](https://github.com/prodigycommerce/nextjs-commerce) ([Demo](https://prodigy-nextjs-commerce.vercel.app/))
-- [Saleor](https://github.com/saleor/nextjs-commerce) ([Demo](https://saleor-commerce.vercel.app/))
-- [Shopware](https://github.com/shopwareLabs/vercel-commerce) ([Demo](https://shopware-vercel-commerce-react.vercel.app/))
-- [Swell](https://github.com/swellstores/verswell-commerce) ([Demo](https://verswell-commerce.vercel.app/))
-- [Umbraco](https://github.com/umbraco/Umbraco.VercelCommerce.Demo) ([Demo](https://vercel-commerce-demo.umbraco.com/))
-- [Wix](https://github.com/wix/headless-templates/tree/main/nextjs/commerce) ([Demo](https://wix-nextjs-commerce.vercel.app/))
-- [Fourthwall](https://github.com/FourthwallHQ/vercel-commerce) ([Demo](https://vercel-storefront.fourthwall.app/))
+## Getting Started
 
-> Note: Providers, if you are looking to use similar products for your demo, you can [download these assets](https://drive.google.com/file/d/1q_bKerjrwZgHwCw0ovfUMW6He9VtepO_/view?usp=sharing).
+### Prerequisites
 
-## Integrations
+- Node.js (version 18.x or later)
+- pnpm (version 9.x or later)
+- Zonos API key (obtain from the Zonos Dashboard)
 
-Integrations enable upgraded or additional functionality for Next.js Commerce
+### Installation
 
-- [Orama](https://github.com/oramasearch/nextjs-commerce) ([Demo](https://vercel-commerce.oramasearch.com/))
+1. Clone the repository
 
-  - Upgrades search to include typeahead with dynamic re-rendering, vector-based similarity search, and JS-based configuration.
-  - Search runs entirely in the browser for smaller catalogs or on a CDN for larger.
+2. Install dependencies using pnpm
 
-- [React Bricks](https://github.com/ReactBricks/nextjs-commerce-rb) ([Demo](https://nextjs-commerce.reactbricks.com/))
-  - Edit pages, product details, and footer content visually using [React Bricks](https://www.reactbricks.com) visual headless CMS.
+3. Create a `.env.local` file in the root directory with the following variables:
 
-## Running locally
+   - **NEXT_PUBLIC_ZONOS_API_KEY**: Your Zonos API key for organization verification and client-side initialization
+   - **CUSTOMER_GRAPH_TOKEN**: Secret token used for all server-side API calls (both REST and GraphQL) to Zonos Elements
+   - **NEXT_PUBLIC_ZONOS_ENVIRONMENT**: Set to "sandbox" or "production"
+   - **ZONOS_REVALIDATION_SECRET**: Secret used for cache invalidation
+   - **DEPLOYMENT_PLATFORM**: Set to "vercel" or "cloudflare" based on deployment platform
+   - **COMPANY_NAME** and **SITE_NAME**: Your store information
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js Commerce. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed client-side. It is retrieved from the Zonos Dashboard under Settings > API Access and is used for all server-side API communications with Zonos Graph.
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control your Shopify store.
+The `NEXT_PUBLIC_ZONOS_API_KEY` is an organization key used for client-side initialization of Zonos Elements. It allows verification of organization access to the graph and checks for allowed domains in the Zonos Elements API. This key is designed to be safely included in client-side code.
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
+The `DEPLOYMENT_PLATFORM` environment variable determines which platform-specific optimizations to use:
+- Set to `vercel` for Vercel deployments
+- Set to `cloudflare` for Cloudflare Pages deployments
 
-```bash
-pnpm install
-pnpm dev
-```
+4. The project uses Zod for environment variable validation with separate server and client environments:
+   - `environment.server.ts` - Server-side environment variables validation
+   - `environment.client.ts` - Client-side environment variables validation (prefixed with `NEXT_PUBLIC_`)
 
-Your app should now be running on [localhost:3000](http://localhost:3000/).
+   This ensures type safety and validation for all environment variables across the application.
 
-<details>
-  <summary>Expand if you work at Vercel and want to run locally and / or contribute</summary>
+5. Start the development server and open the application in your browser
 
-1. Run `vc link`.
-1. Select the `Vercel Solutions` scope.
-1. Connect to the existing `commerce-shopify` project.
-1. Run `vc env pull` to get environment variables.
-1. Run `pnpm dev` to ensure everything is working correctly.
-</details>
+## Development
 
-## Vercel, Next.js Commerce, and Shopify Integration Guide
+### Project Structure
 
-You can use this comprehensive [integration guide](https://vercel.com/docs/integrations/ecommerce/shopify) with step-by-step instructions on how to configure Shopify as a headless CMS using Next.js Commerce as your headless Shopify storefront on Vercel.
+The project follows a standard Next.js App Router structure with specialized directories for different components and functionality:
+- App router configuration in the `app` directory
+- Components organized by functionality in the `components` directory
+- Utility functions and shared code in the `lib` directory
+- Static assets in the `public` directory
+- Project specifications in the `specs` directory
+- Tests in the `tests` directory
+
+### Available Scripts
+
+- `pnpm dev` - Start the development server
+- `pnpm build` - Build the application for production
+- `pnpm start` - Start the production server
+- `pnpm lint` - Run ESLint to check for code quality issues
+- `pnpm test` - Run Vitest tests
+- `pnpm tsc` - Run TypeScript type checking
+
+## Deployment
+
+The application is optimized for deployment on both Vercel and Cloudflare:
+
+- Connect your GitHub repository for continuous deployment
+- Both platforms provide automatic deployments:
+  - Production deployments from the main branch
+  - Preview deployments for feature branches and pull requests
+
+The `DEPLOYMENT_PLATFORM` environment variable determines which platform-specific optimizations to use:
+- Set to `vercel` for Vercel deployments
+- Set to `cloudflare` for Cloudflare Pages deployments
+
+For detailed deployment instructions, see the [deployment specification](./specs/deployment.spec.md).
+
+## Documentation
+
+Detailed documentation is available in the `specs` directory:
+
+- [Project Setup](./specs/project-setup.spec.md)
+- [Architecture](./specs/architecture.spec.md)
+- [Zonos Elements Integration](./specs/zonos-elements-integration.spec.md)
+- [Frontend Components](./specs/frontend-components.spec.md)
+- [API Integration](./specs/api-integration.spec.md)
+- [Testing Strategy](./specs/testing-strategy.spec.md)
+- [Deployment](./specs/deployment.spec.md)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
