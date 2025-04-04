@@ -48,5 +48,3 @@ export const TAGS = {
 
 export const HIDDEN_PRODUCT_TAG = "nextjs-frontend-hidden";
 export const DEFAULT_OPTION = "Default Title";
-
-export const ZONOS_API_URL = "https://route.elements.zonos.com";
