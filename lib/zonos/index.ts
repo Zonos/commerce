@@ -1,5 +1,12 @@
-import { ZONOS_API_URL } from "lib/constants";
+/**
+ * Zonos Elements API Client
+ *
+ * Example client for making requests to Zonos Elements API
+ * using the platform-specific configuration.
+ */
+
 import { getProducts } from "lib/data-samples";
+import { getZonosApiEndpoint } from "lib/zonos/api-config";
 import type { CartResponse, CurrencyCode } from "lib/zonos/api/baseTypes";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -11,6 +18,16 @@ import {
   type ZonosCartUpdateOperation,
 } from "./types";
 
+// Type declaration for Node.js process in environments that may not have it
+declare const process: {
+  env: {
+    CUSTOMER_GRAPH_TOKEN?: string;
+  };
+};
+
+/**
+ * This is the token to make requests to Zonos API, make sure to not expose it in client-side code.
+ */
 const CUSTOMER_GRAPH_TOKEN = process.env.CUSTOMER_GRAPH_TOKEN!;
 
 type ExtractPayload<T> = T extends { payload: object } ? T["payload"] : never;
@@ -30,10 +47,16 @@ export async function zonosFetch<
 }): Promise<T["data"] | never> {
   try {
     const hasDynamicEndpoint = endpoint.toString().includes("{");
-    const formattedUrl = new URL(`${ZONOS_API_URL}${endpoint}`);
+    /**
+     * getZonosApiEndpoint returns the correct API URL based on the deployment platform
+     * with fallback logic.
+     */
+    const apiUrl = getZonosApiEndpoint(endpoint);
+    const formattedUrl = new URL(apiUrl);
     // If the method is GET and the body is an object, add the body to the URL as query params
     if (method === "GET" && typeof body === "object") {
       Object.entries(body).forEach(([key, value]) => {
+        // Replace the dynamic endpoint with the value
         if (hasDynamicEndpoint) {
           formattedUrl.pathname = endpoint.replace(`{${key}}`, value);
         } else {
@@ -161,6 +184,7 @@ export async function addToCart({
       };
 
   const itemsAdd: ZonosCartUpdateOperation["payload"]["itemsAdd"] = [
+    // Exclude the item matching the sku
     ...cart.items.flatMap((item) =>
       item.sku !== sku
         ? {
