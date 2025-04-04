@@ -14,7 +14,7 @@ declare const process: {
 
 const VERCEL_ZONOS_API_URL = "https://route.js.zonos.com";
 const CLOUDFLARE_ZONOS_API_URL = "https://route.elements.zonos.com";
-const DEFAULT_ZONOS_API_URL = "https://route.elements.zonos.com";
+const DEFAULT_ZONOS_API_URL = "https://commerce.route.js.zonos.com";
 
 /**
  * Get the appropriate Zonos Elements API URL based on the deployment platform
