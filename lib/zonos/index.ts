@@ -1,0 +1,257 @@
+import { ZONOS_API_URL } from "lib/constants";
+import { getProducts } from "lib/data-samples";
+import type { CartResponse, CurrencyCode } from "lib/zonos/api/baseTypes";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  type ZonosCart,
+  type ZonosCartByIdOperation,
+  type ZonosCartCreateOperation,
+  type ZonosCartItem,
+  type ZonosCartUpdateOperation,
+} from "./types";
+
+const CUSTOMER_GRAPH_TOKEN = process.env.CUSTOMER_GRAPH_TOKEN!;
+
+type ExtractPayload<T> = T extends { payload: object } ? T["payload"] : never;
+
+export async function zonosFetch<
+  T extends { endpoint: string; data: unknown; method: "GET" | "POST" | "PUT" },
+>({
+  endpoint,
+  headers,
+  method,
+  body,
+}: {
+  endpoint: T["endpoint"];
+  headers?: HeadersInit;
+  method: T["method"];
+  body: ExtractPayload<T>;
+}): Promise<T["data"] | never> {
+  try {
+    const hasDynamicEndpoint = endpoint.toString().includes("{");
+    const formattedUrl = new URL(`${ZONOS_API_URL}${endpoint}`);
+    // If the method is GET and the body is an object, add the body to the URL as query params
+    if (method === "GET" && typeof body === "object") {
+      Object.entries(body).forEach(([key, value]) => {
+        if (hasDynamicEndpoint) {
+          formattedUrl.pathname = endpoint.replace(`{${key}}`, value);
+        } else {
+          formattedUrl.searchParams.set(key, value);
+        }
+      });
+    }
+    const result = await fetch(formattedUrl.toString(), {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        credentialToken: CUSTOMER_GRAPH_TOKEN,
+        ...headers,
+      },
+      body: method === "GET" ? undefined : JSON.stringify(body),
+    });
+    const content = await result.text();
+
+    const json = JSON.parse(content);
+
+    if (json.errors) {
+      throw json.errors;
+    }
+
+    return json;
+  } catch (e) {
+    throw e;
+  }
+}
+
+const reshapeCart = (cart: CartResponse): ZonosCart => {
+  const subtotalAmount = cart.items.reduce(
+    (acc, item) => acc + item.amount * item.quantity,
+    0,
+  );
+  const totalAmount =
+    subtotalAmount +
+    cart.adjustments.reduce((acc, adjustment) => acc + adjustment.amount, 0);
+  const currencyCode = cart.items[0]?.currencyCode || "USD";
+  const totalQuantity = cart.items.reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  );
+  return {
+    ...cart,
+    totalQuantity,
+    checkoutUrl: "#",
+    cost: {
+      totalAmount: {
+        amount: totalAmount.toFixed(2),
+        currencyCode: currencyCode,
+      },
+      subtotalAmount: {
+        amount: subtotalAmount.toFixed(2),
+        currencyCode: currencyCode,
+      },
+    },
+  };
+};
+
+export async function createCart(): Promise<ZonosCart> {
+  const res = await zonosFetch<ZonosCartCreateOperation>({
+    endpoint: "/api/commerce/cart/create",
+    body: {
+      items: [],
+      adjustments: [],
+    },
+    method: "POST",
+  });
+  return reshapeCart(res);
+}
+
+export async function addToCart({
+  sku,
+  quantity,
+}: {
+  sku: string;
+  quantity: number;
+}): Promise<ZonosCart> {
+  const products = await getProducts({});
+  const product = products.find((product) =>
+    product.variants.some((variant) => variant.id === sku),
+  );
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  const variant = product.variants.find((variant) => variant.id === sku)!;
+
+  let cart = await getCart();
+
+  if (!cart) {
+    cart = await createCart();
+  }
+
+  const foundItem = cart.items.find((item) => item.sku === sku);
+
+  // If the item already exists, update the quantity
+  const addedItem = foundItem
+    ? {
+        ...foundItem,
+        quantity: quantity + foundItem.quantity,
+      }
+    : {
+        // If the item doesn't exist, add it
+        quantity,
+        amount: Number(variant.price.amount),
+        currencyCode: variant.price.currencyCode as CurrencyCode,
+        description: product.description,
+        sku: variant.id,
+        productId: product.id,
+        imageUrl: product.featuredImage.url,
+        name: product.title,
+        attributes: variant.selectedOptions.map((option) => ({
+          key: option.name,
+          value: option.value,
+        })),
+        metadata: [
+          {
+            key: "handle",
+            value: product.handle,
+          },
+        ],
+      };
+
+  const itemsAdd: ZonosCartUpdateOperation["payload"]["itemsAdd"] = [
+    ...cart.items.flatMap((item) =>
+      item.sku !== sku
+        ? {
+            ...item,
+            id: undefined,
+          }
+        : [],
+    ),
+    addedItem,
+  ];
+
+  const res = await zonosFetch<ZonosCartUpdateOperation>({
+    endpoint: "/api/commerce/cart/update",
+    body: {
+      id: cart.id,
+      itemsAdd,
+      itemsRemove: cart.items.map((item) => item.id),
+    },
+    method: "PUT",
+  });
+  return reshapeCart(res);
+}
+
+export async function removeFromCart(itemIds: string[]): Promise<ZonosCart> {
+  const cartId = (await cookies()).get("cartId")?.value!;
+  const res = await zonosFetch<ZonosCartUpdateOperation>({
+    endpoint: "/api/commerce/cart/update",
+    body: {
+      id: cartId,
+      itemsRemove: itemIds,
+    },
+    method: "PUT",
+  });
+
+  return reshapeCart(res);
+}
+
+export async function updateCart({
+  cart,
+  newUpdateItems,
+}: {
+  cart: ZonosCart;
+  newUpdateItems: ZonosCartItem[];
+}): Promise<ZonosCart> {
+  const res = await zonosFetch<ZonosCartUpdateOperation>({
+    endpoint: "/api/commerce/cart/update",
+    body: {
+      id: cart.id,
+      adjustments: cart.adjustments.map((adjustment) => ({
+        ...adjustment,
+        productId: adjustment.productId || undefined,
+        description: adjustment.description || undefined,
+        sku: adjustment.sku || undefined,
+      })),
+      itemsAdd: newUpdateItems.map((item) => ({
+        ...item,
+        id: undefined,
+        description: item.description || undefined,
+        sku: item.sku || undefined,
+        productId: item.productId || undefined,
+        imageUrl: item.imageUrl || undefined,
+        name: item.name || undefined,
+      })),
+      itemsRemove: newUpdateItems.map((item) => item.id),
+    },
+    method: "PUT",
+  });
+
+  return reshapeCart(res);
+}
+
+export async function getCart(): Promise<ZonosCart | undefined> {
+  const cartId = (await cookies()).get("cartId")?.value;
+
+  if (!cartId) {
+    return undefined;
+  }
+
+  const res = await zonosFetch<ZonosCartByIdOperation>({
+    endpoint: "/api/commerce/cart/{id}",
+    body: {
+      id: cartId,
+    },
+    method: "GET",
+  });
+
+  return reshapeCart(res);
+}
+
+// This is called from `app/api/revalidate.ts` so providers can control revalidation logic.
+export async function revalidate(req: NextRequest): Promise<NextResponse> {
+  // We can implement revalidation logic later, for now we just return a 200.
+  return NextResponse.json({ status: 200 });
+}
