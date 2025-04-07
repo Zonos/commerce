@@ -8,11 +8,15 @@ This document outlines the API integration strategy for the Zonos Commerce proje
 
 The following Zonos Elements API endpoints will be integrated:
 
-### Zonos Elements API (TBD)
+### Zonos Elements API
 
 | Endpoint | Description | Method |
 |----------|-------------|--------|
-
+| `/api/commerce/cart/create` | Create a new cart | POST |
+| `/api/commerce/cart/update` | Update an existing cart | PUT |
+| `/api/commerce/cart/{id}` | Retrieve cart details by ID | GET |
+| `/hello/calculate` | Calculate duty and tax for products | POST |
+| `/checkout/sessions` | Create a checkout session | POST |
 
 ## Authentication
 
@@ -22,9 +26,65 @@ The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed clie
 
 For the upcoming Zonos Checkout integration, a separate public API key (`NEXT_PUBLIC_ZONOS_API_KEY`) will be used. This organization key is designed for client-side usage and allows verification of organization access to the graph and checking for allowed domains in the Zonos Elements API. Unlike the `CUSTOMER_GRAPH_TOKEN`, this key can safely be included in client-side code.
 
-## Type Definitions (TBD)
+## Type Definitions
 
-The integration will define TypeScript interfaces for all key data structures.
+The integration defines TypeScript interfaces for all key data structures:
+
+### Cart Types
+
+- **ZonosCart**: Extends `CartResponse` with additional derived fields:
+  - `totalQuantity`: Total number of items in the cart
+  - `cost`: Object containing computed totals
+    - `subtotalAmount`: Pre-tax/shipping cart subtotal
+    - `totalAmount`: Total cart amount including adjustments
+  - `checkoutUrl`: URL for checkout
+
+- **ZonosCartItem**: Represents a single item in the cart with properties like:
+  - `amount`: Price per unit
+  - `currencyCode`: Currency for the price
+  - `description`: Item description
+  - `id`: Unique identifier
+  - `imageUrl`: URL for item image
+  - `name`: Item name
+  - `productId`: Associated product ID
+  - `quantity`: Number of items
+  - `sku`: Stock Keeping Unit
+  - `attributes`: Array of key-value pairs for item options
+  - `metadata`: Additional item metadata
+
+### Operation Types
+
+- **ZonosCartCreateOperation**: Type for cart creation API requests
+  - `payload`: Cart creation payload with items and adjustments
+  - `endpoint`: "/api/commerce/cart/create"
+  - `method`: "POST"
+
+- **ZonosCartUpdateOperation**: Type for cart update API requests
+  - `payload`: Cart update payload with ID, items to add/remove
+  - `endpoint`: "/api/commerce/cart/update"
+  - `method`: "PUT"
+
+- **ZonosCartByIdOperation**: Type for fetching cart data
+  - `payload`: Cart ID payload
+  - `endpoint`: "/api/commerce/cart/{id}"
+  - `method`: "GET"
+
+### Enumeration Types
+
+- **CartAdjustmentType**: Types of cart adjustments ("CART_TOTAL", "ITEM", "ORDER_TOTAL", "PROMO_CODE", "SHIPPING")
+- **CountryCode**: ISO country codes for shipping and product origin
+- **CurrencyCode**: ISO currency codes for pricing
+- **ItemType**: Types of items ("BUNDLE", "DIGITAL_GOOD", "PHYSICAL_GOOD", etc.)
+- **ItemMeasurementType**: Measurement types for products
+- **ItemUnitOfMeasure**: Units for product measurements
+
+### Base Types
+
+- **ProductResponse**: Complete product information including pricing, metadata, and attributes
+- **CartResponse**: Base cart response from the API
+- **CartCreateResponse**: Response for cart creation
+- **CartByIdResponse**: Response when fetching cart by ID
+- **CartUpdateResponse**: Response after updating a cart
 
 ## Server Actions (TBD)
 
