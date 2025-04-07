@@ -1,6 +1,6 @@
-import { createCartAndSetCookie } from 'components/cart/actions';
-import { getCart } from 'lib/zonos';
-import { NextResponse } from 'next/server';
+import { createCartAndSetCookie } from "components/cart/actions";
+import { getCart } from "lib/zonos";
+import { NextResponse } from "next/server";
 
 export async function GET(): Promise<NextResponse> {
   const cart = await getCart();

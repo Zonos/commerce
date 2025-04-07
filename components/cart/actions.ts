@@ -1,27 +1,27 @@
-'use server';
+"use server";
 
-import { TAGS } from 'lib/constants';
+import { TAGS } from "lib/constants";
 import {
   addToCart,
   createCart,
   getCart,
   removeFromCart,
   updateCart,
-} from 'lib/zonos';
-import { revalidateTag } from 'next/cache';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+} from "lib/zonos";
+import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function addItem(
   prevState: any,
   payload: {
     sku?: string;
     quantity: number;
-  }
+  },
 ) {
   const { sku, quantity } = payload;
   if (!sku) {
-    return 'Error adding item to cart';
+    return "Error adding item to cart";
   }
 
   try {
@@ -31,7 +31,7 @@ export async function addItem(
     });
     revalidateTag(TAGS.cart);
   } catch (e) {
-    return 'Error adding item to cart';
+    return "Error adding item to cart";
   }
 }
 
@@ -40,7 +40,7 @@ export async function removeItem(prevState: any, id: string) {
     const cart = await getCart();
 
     if (!cart) {
-      return 'Error fetching cart';
+      return "Error fetching cart";
     }
 
     const lineItem = cart.items.find((line) => line.id === id);
@@ -49,10 +49,10 @@ export async function removeItem(prevState: any, id: string) {
       await removeFromCart([lineItem.id]);
       revalidateTag(TAGS.cart);
     } else {
-      return 'Item not found in cart';
+      return "Item not found in cart";
     }
   } catch (e) {
-    return 'Error removing item from cart';
+    return "Error removing item from cart";
   }
 }
 
@@ -61,14 +61,14 @@ export async function updateItemQuantity(
   payload: {
     sku: string;
     quantity: number;
-  }
+  },
 ) {
   const { sku, quantity } = payload;
   try {
     const cart = await getCart();
 
     if (!cart) {
-      return 'Error fetching cart';
+      return "Error fetching cart";
     }
 
     const lineItem = cart.items.find((line) => line.sku === sku);
@@ -90,18 +90,18 @@ export async function updateItemQuantity(
     revalidateTag(TAGS.cart);
   } catch (e) {
     console.error(e);
-    return 'Error updating item quantity';
+    return "Error updating item quantity";
   }
 }
 
 export async function redirectToCheckout() {
   let cart = await getCart();
-  redirect('/checkout');
+  redirect("/checkout");
 }
 
 export async function createCartAndSetCookie() {
   let cart = await createCart();
-  (await cookies()).set('cartId', cart.id!);
-  console.log('createCartAndSetCookie', cart.id);
+  (await cookies()).set("cartId", cart.id!);
+  console.log("createCartAndSetCookie", cart.id);
   return cart.id;
 }
