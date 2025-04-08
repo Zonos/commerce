@@ -5,10 +5,10 @@ export interface ShopifyErrorLike {
 }
 
 export const isObject = (
-  object: unknown
+  object: unknown,
 ): object is Record<string, unknown> => {
   return (
-    typeof object === 'object' && object !== null && !Array.isArray(object)
+    typeof object === "object" && object !== null && !Array.isArray(object)
   );
 };
 
@@ -22,13 +22,13 @@ export const isShopifyError = (error: unknown): error is ShopifyErrorLike => {
 
 function findError<T extends object>(error: T): boolean {
   if (
-    typeof error.toString === 'function' &&
-    error.toString() === '[object Error]'
+    typeof error.toString === "function" &&
+    error.toString() === "[object Error]"
   ) {
     return true;
   }
 
-  if (Object.prototype.toString.call(error) === '[object Error]') {
+  if (Object.prototype.toString.call(error) === "[object Error]") {
     return true;
   }
 

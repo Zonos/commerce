@@ -5,18 +5,18 @@
  * using the platform-specific configuration.
  */
 
-import { getProducts } from 'lib/data-samples';
-import { getZonosApiEndpoint } from 'lib/zonos/api-config';
-import type { CartResponse, CurrencyCode } from 'lib/zonos/api/baseTypes';
-import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
+import { getProducts } from "lib/data-samples";
+import { getZonosApiEndpoint } from "lib/zonos/api-config";
+import type { CartResponse, CurrencyCode } from "lib/zonos/api/baseTypes";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 import {
   type ZonosCart,
   type ZonosCartByIdOperation,
   type ZonosCartCreateOperation,
   type ZonosCartItem,
   type ZonosCartUpdateOperation,
-} from './types';
+} from "./types";
 
 // Type declaration for Node.js process in environments that may not have it
 declare const process: {
@@ -30,27 +30,27 @@ declare const process: {
  */
 const CUSTOMER_GRAPH_TOKEN = process.env.CUSTOMER_GRAPH_TOKEN!;
 
-type ExtractPayload<T> = T extends { payload: object } ? T['payload'] : never;
+type ExtractPayload<T> = T extends { payload: object } ? T["payload"] : never;
 
 export async function zonosFetch<
-  T extends { endpoint: string; data: unknown; method: 'GET' | 'POST' | 'PUT' },
+  T extends { endpoint: string; data: unknown; method: "GET" | "POST" | "PUT" },
 >({
   endpoint,
   headers,
   method,
   body,
 }: {
-  endpoint: T['endpoint'];
+  endpoint: T["endpoint"];
   headers?: HeadersInit;
-  method: T['method'];
+  method: T["method"];
   body: ExtractPayload<T>;
-}): Promise<T['data'] | never> {
+}): Promise<T["data"] | never> {
   try {
-    const hasDynamicEndpoint = endpoint.toString().includes('{');
+    const hasDynamicEndpoint = endpoint.toString().includes("{");
     let resolvedEndpoint = endpoint;
 
     // If the method is GET and the endpoint has dynamic parts, replace them with values from body
-    if (method === 'GET' && hasDynamicEndpoint && typeof body === 'object') {
+    if (method === "GET" && hasDynamicEndpoint && typeof body === "object") {
       Object.entries(body).forEach(([key, value]) => {
         if (resolvedEndpoint.includes(`{${key}}`)) {
           resolvedEndpoint = resolvedEndpoint.replace(`{${key}}`, value);
@@ -66,7 +66,7 @@ export async function zonosFetch<
     const formattedUrl = new URL(apiUrl);
 
     // Add remaining parameters as query params for GET requests
-    if (method === 'GET' && typeof body === 'object') {
+    if (method === "GET" && typeof body === "object") {
       Object.entries(body).forEach(([key, value]) => {
         // Skip the parameters used in path replacement
         if (!hasDynamicEndpoint || !endpoint.includes(`{${key}}`)) {
@@ -78,11 +78,11 @@ export async function zonosFetch<
     const result = await fetch(formattedUrl.toString(), {
       method,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         credentialToken: CUSTOMER_GRAPH_TOKEN,
         ...headers,
       },
-      body: method === 'GET' ? undefined : JSON.stringify(body),
+      body: method === "GET" ? undefined : JSON.stringify(body),
     });
     const content = await result.text();
 
@@ -101,20 +101,20 @@ export async function zonosFetch<
 const reshapeCart = (cart: CartResponse): ZonosCart => {
   const subtotalAmount = cart.items.reduce(
     (acc, item) => acc + item.amount * item.quantity,
-    0
+    0,
   );
   const totalAmount =
     subtotalAmount +
     cart.adjustments.reduce((acc, adjustment) => acc + adjustment.amount, 0);
-  const currencyCode = cart.items[0]?.currencyCode || 'USD';
+  const currencyCode = cart.items[0]?.currencyCode || "USD";
   const totalQuantity = cart.items.reduce(
     (acc, item) => acc + item.quantity,
-    0
+    0,
   );
   return {
     ...cart,
     totalQuantity,
-    checkoutUrl: '#',
+    checkoutUrl: "#",
     cost: {
       totalAmount: {
         amount: totalAmount.toFixed(2),
@@ -130,12 +130,12 @@ const reshapeCart = (cart: CartResponse): ZonosCart => {
 
 export async function createCart(): Promise<ZonosCart> {
   const res = await zonosFetch<ZonosCartCreateOperation>({
-    endpoint: '/api/commerce/cart/create',
+    endpoint: "/api/commerce/cart/create",
     body: {
       items: [],
       adjustments: [],
     },
-    method: 'POST',
+    method: "POST",
   });
   return reshapeCart(res);
 }
@@ -149,11 +149,11 @@ export async function addToCart({
 }): Promise<ZonosCart> {
   const products = await getProducts({});
   const product = products.find((product) =>
-    product.variants.some((variant) => variant.id === sku)
+    product.variants.some((variant) => variant.id === sku),
   );
 
   if (!product) {
-    throw new Error('Product not found');
+    throw new Error("Product not found");
   }
 
   const variant = product.variants.find((variant) => variant.id === sku)!;
@@ -188,13 +188,13 @@ export async function addToCart({
         })),
         metadata: [
           {
-            key: 'handle',
+            key: "handle",
             value: product.handle,
           },
         ],
       };
 
-  const itemsAdd: ZonosCartUpdateOperation['payload']['itemsAdd'] = [
+  const itemsAdd: ZonosCartUpdateOperation["payload"]["itemsAdd"] = [
     // Exclude the item matching the sku
     ...cart.items.flatMap((item) =>
       item.sku !== sku
@@ -202,33 +202,33 @@ export async function addToCart({
             ...item,
             id: undefined,
           }
-        : []
+        : [],
     ),
     addedItem,
   ];
 
   const res = await zonosFetch<ZonosCartUpdateOperation>({
-    endpoint: '/api/commerce/cart/update',
+    endpoint: "/api/commerce/cart/update",
     body: {
       id: cart.id,
       itemsAdd,
       itemsRemove: cart.items.map((item) => item.id),
     },
-    method: 'PUT',
+    method: "PUT",
   });
   return reshapeCart(res);
 }
 
 export async function removeFromCart(itemIds: string[]): Promise<ZonosCart> {
   const cookieStore = await cookies();
-  const cartId = cookieStore.get('cartId')?.value!;
+  const cartId = cookieStore.get("cartId")?.value!;
   const res = await zonosFetch<ZonosCartUpdateOperation>({
-    endpoint: '/api/commerce/cart/update',
+    endpoint: "/api/commerce/cart/update",
     body: {
       id: cartId,
       itemsRemove: itemIds,
     },
-    method: 'PUT',
+    method: "PUT",
   });
 
   return reshapeCart(res);
@@ -242,7 +242,7 @@ export async function updateCart({
   newUpdateItems: ZonosCartItem[];
 }): Promise<ZonosCart> {
   const res = await zonosFetch<ZonosCartUpdateOperation>({
-    endpoint: '/api/commerce/cart/update',
+    endpoint: "/api/commerce/cart/update",
     body: {
       id: cart.id,
       adjustments: cart.adjustments.map((adjustment) => ({
@@ -262,7 +262,7 @@ export async function updateCart({
       })),
       itemsRemove: newUpdateItems.map((item) => item.id),
     },
-    method: 'PUT',
+    method: "PUT",
   });
 
   return reshapeCart(res);
@@ -270,19 +270,19 @@ export async function updateCart({
 
 export async function getCart(): Promise<ZonosCart | undefined> {
   const cookieStore = await cookies();
-  const cartId = cookieStore.get('cartId')?.value;
-  console.log('getCart id', cartId);
+  const cartId = cookieStore.get("cartId")?.value;
+  console.log("getCart id", cartId);
 
   if (!cartId) {
     return undefined;
   }
 
   const res = await zonosFetch<ZonosCartByIdOperation>({
-    endpoint: '/api/commerce/cart/{id}',
+    endpoint: "/api/commerce/cart/{id}",
     body: {
       id: cartId,
     },
-    method: 'GET',
+    method: "GET",
   });
 
   return reshapeCart(res);

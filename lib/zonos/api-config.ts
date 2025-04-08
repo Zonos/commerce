@@ -13,9 +13,9 @@ declare const process: {
   };
 };
 
-const VERCEL_ZONOS_API_URL = 'https://route.js.zonos.com';
-const CLOUDFLARE_ZONOS_API_URL = 'https://route.elements.zonos.com';
-const DEFAULT_FALLBACK_URL = 'https://route.elements.zonos.com';
+const VERCEL_ZONOS_API_URL = "https://route.js.zonos.com";
+const CLOUDFLARE_ZONOS_API_URL = "https://route.elements.zonos.com";
+const DEFAULT_FALLBACK_URL = "https://route.elements.zonos.com";
 
 /**
  * Get the appropriate Zonos Elements API URL based on the deployment platform
@@ -31,9 +31,9 @@ export function getZonosApiUrl(): string {
   }
 
   // Select URL based on platform with fallback
-  if (deploymentPlatform === 'vercel') {
+  if (deploymentPlatform === "vercel") {
     return VERCEL_ZONOS_API_URL;
-  } else if (deploymentPlatform === 'cloudflare') {
+  } else if (deploymentPlatform === "cloudflare") {
     return CLOUDFLARE_ZONOS_API_URL;
   }
 
@@ -47,7 +47,7 @@ export function getZonosApiUrl(): string {
 export function getZonosApiEndpoint(endpoint: string): string {
   const baseUrl = getZonosApiUrl();
   // Ensure we don't have double slashes when joining paths
-  const normalizedEndpoint = endpoint.startsWith('/')
+  const normalizedEndpoint = endpoint.startsWith("/")
     ? endpoint.substring(1)
     : endpoint;
   return `${baseUrl}/${normalizedEndpoint}`;

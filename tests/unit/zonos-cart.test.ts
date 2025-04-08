@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getCart, zonosFetch } from '../../lib/zonos';
+import type { ZonosCart, ZonosCartByIdOperation } from '../../lib/zonos/types';
 
 // Set the token in process.env for tests
 process.env.CUSTOMER_GRAPH_TOKEN = 'test-token';
@@ -14,31 +15,66 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
+// Define a type to match the real implementation in zonos/index.ts
+type ExtractPayload<T> = T extends { payload: object } ? T['payload'] : never;
+
 // Mock zonosFetch directly instead of importing it
 vi.mock('../../lib/zonos', async () => {
-  const originalModule = await vi.importActual('../../lib/zonos');
+  const originalModule =
+    await vi.importActual<typeof import('../../lib/zonos')>('../../lib/zonos');
 
   return {
     ...originalModule,
-    zonosFetch: vi.fn().mockImplementation(async () => {
-      return { id: 'test-cart-id', items: [], adjustments: [] };
-    }),
-    getCart: async () => {
+    zonosFetch: vi.fn().mockImplementation(
+      async <
+        T extends {
+          endpoint: string;
+          data: unknown;
+          method: 'GET' | 'POST' | 'PUT';
+        },
+      >(params: {
+        endpoint: T['endpoint'];
+        headers?: HeadersInit;
+        method: T['method'];
+        body: T extends { payload: object } ? T['payload'] : never;
+      }): Promise<T['data']> => {
+        return {
+          id: 'test-cart-id',
+          items: [],
+          adjustments: [],
+          metadata: [],
+        } as T['data'];
+      }
+    ),
+    getCart: async (): Promise<ZonosCart | undefined> => {
       const cookieStore = cookies();
-      const cartId = cookieStore.get('cartId')?.value;
+      const cartId = (cookieStore as any).get('cartId')?.value;
 
       if (!cartId) {
         return undefined;
       }
 
       try {
-        const data = await vi.mocked(zonosFetch)(
-          `/api/commerce/cart/${cartId}`
-        );
+        // Create a type-safe version of zonosFetch for testing
+        const mockZonosFetch = vi.mocked(zonosFetch) as unknown as <T>(params: {
+          endpoint: string;
+          method: 'GET' | 'POST' | 'PUT';
+          body: ExtractPayload<T>;
+          headers?: HeadersInit;
+        }) => Promise<T extends { data: infer D } ? D : unknown>;
+
+        const data = await mockZonosFetch<ZonosCartByIdOperation>({
+          endpoint: '/api/commerce/cart/{id}',
+          method: 'GET',
+          body: { id: cartId },
+          headers: {},
+        });
+
         return {
           id: data.id,
           items: data.items || [],
           adjustments: data.adjustments || [],
+          metadata: data.metadata || [],
           totalQuantity: 0,
           checkoutUrl: '#',
           cost: {
@@ -70,7 +106,7 @@ describe('zonos cart functions', () => {
       const mockGet = vi.fn().mockReturnValue(undefined);
       vi.mocked(cookies).mockReturnValue({
         get: mockGet,
-      });
+      } as unknown as ReturnType<typeof cookies>);
 
       // Execute
       const result = await getCart();
@@ -86,7 +122,7 @@ describe('zonos cart functions', () => {
       const mockGet = vi.fn().mockReturnValue({ value: 'test-cart-id' });
       vi.mocked(cookies).mockReturnValue({
         get: mockGet,
-      });
+      } as unknown as ReturnType<typeof cookies>);
 
       // Execute
       const result = await getCart();
