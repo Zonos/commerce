@@ -271,7 +271,6 @@ export async function updateCart({
 export async function getCart(): Promise<ZonosCart | undefined> {
   const cookieStore = await cookies();
   const cartId = cookieStore.get("cartId")?.value;
-  console.log("getCart id", cartId);
 
   if (!cartId) {
     return undefined;

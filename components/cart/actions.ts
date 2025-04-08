@@ -103,6 +103,5 @@ export async function createCartAndSetCookie() {
   let cart = await createCart();
   const cookieStore = await cookies();
   cookieStore.set("cartId", cart.id!);
-  console.log("createCartAndSetCookie", cart.id);
   return cart.id;
 }

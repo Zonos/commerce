@@ -46,7 +46,6 @@ describe("zonosFetch", () => {
     // Check that fetch was called with the correct URL
     expect(fetch).toHaveBeenCalledTimes(1);
     const fetchArgs = vi.mocked(fetch).mock.calls[0]!;
-    console.log(fetchArgs);
     const fetchUrl = fetchArgs[0] as string;
 
     // Verify the URL has the path parameter replaced correctly
