@@ -10,6 +10,31 @@ This document outlines the comprehensive testing strategy for the Zonos Commerce
 
 Unit tests will verify the functionality of individual units of code in isolation.
 
+#### Implementation Status
+
+As of the initial implementation, we have set up Vitest for testing pure functions that don't require DOM interaction. The current test suite includes:
+
+- Utility functions in `lib/utils.ts`:
+  - `createUrl` and `ensureStartsWith` 
+  - `validateEnvironmentVariables` for environment variable validation
+- Type guard functions in `lib/type-guards.ts`:
+  - `isObject` for checking if a value is an object
+  - `isShopifyError` for validating error types
+- API configuration in `lib/zonos/api-config.ts`:
+  - `getZonosApiEndpoint` for constructing API endpoints
+  - `getZonosApiUrl` for platform-specific API base URLs
+- Server Actions in `components/cart/actions.ts`:
+  - `addItem` for adding items to the cart
+  - `removeItem` for removing items from the cart
+  - `updateItemQuantity` for updating item quantities
+  - `redirectToCheckout` for redirecting to checkout
+  - `createCartAndSetCookie` for creating a cart and setting cookies
+
+Future implementations will include:
+- React component testing with React Testing Library
+- Form validation logic
+- API client methods
+
 #### What to Test
 - Individual functions, methods, and classes
 - UI components in isolation
@@ -18,47 +43,37 @@ Unit tests will verify the functionality of individual units of code in isolatio
 - Form validation logic
 
 #### Tools
-- **Vitest**: Primary test runner and assertion library
-- **React Testing Library**: For testing React components
-- **Testing Library User Event**: For simulating user interactions
+- **Vitest**: Primary test runner and assertion library for pure function testing (✅ Implemented)
+- **React Testing Library**: For testing React components (🔄 Planned)
+- **Testing Library User Event**: For simulating user interactions (🔄 Planned)
 
 #### Example Unit Test
 
 ```typescript
-// components/ui/Button.test.tsx
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { Button } from './Button';
+// tests/unit/utils.test.ts (Implemented)
+import { describe, it, expect } from 'vitest';
+import { createUrl, ensureStartsWith } from '../../lib/utils';
 
-describe('Button component', () => {
-  it('renders correctly with default props', () => {
-    render(<Button>Click Me</Button>);
-    const button = screen.getByRole('button', { name: /click me/i });
-    expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('btn-primary');
+describe('createUrl', () => {
+  it('creates a URL with no parameters', () => {
+    const params = new URLSearchParams();
+    expect(createUrl('/path', params)).toBe('/path');
   });
 
-  it('renders with different variants', () => {
-    render(<Button variant="secondary">Secondary Button</Button>);
-    const button = screen.getByRole('button', { name: /secondary button/i });
-    expect(button).toHaveClass('btn-secondary');
+  it('creates a URL with parameters', () => {
+    const params = new URLSearchParams();
+    params.set('key', 'value');
+    expect(createUrl('/path', params)).toBe('/path?key=value');
+  });
+});
+
+describe('ensureStartsWith', () => {
+  it('returns the original string if it already starts with the prefix', () => {
+    expect(ensureStartsWith('https://example.com', 'https://')).toBe('https://example.com');
   });
 
-  it('calls the onClick handler when clicked', async () => {
-    const mockOnClick = vi.fn();
-    render(<Button onClick={mockOnClick}>Clickable</Button>);
-    
-    const button = screen.getByRole('button', { name: /clickable/i });
-    await userEvent.click(button);
-    
-    expect(mockOnClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('is disabled when isLoading is true', () => {
-    render(<Button isLoading>Loading</Button>);
-    const button = screen.getByRole('button', { name: /loading/i });
-    expect(button).toBeDisabled();
-    expect(button).toHaveClass('btn-loading');
+  it('adds the prefix to the string if it does not already start with it', () => {
+    expect(ensureStartsWith('example.com', 'https://')).toBe('https://example.com');
   });
 });
 ```
@@ -305,32 +320,64 @@ describe('Button accessibility', () => {
 
 ### Test Directory Structure
 
+Current Implementation:
+```
+zonos-commerce/
+├── tests/                           # Test directory (✅ Implemented)
+│   ├── unit/                        # Unit tests for pure functions (✅ Implemented)
+│   │   ├── utils.test.ts            # Tests for utility functions
+│   │   │   ├── createUrl           # Tests URL creation
+│   │   │   ├── ensureStartsWith    # Tests string prefix handling
+│   │   │   └── validateEnvironmentVariables  # Tests env var validation
+│   │   ├── type-guards.test.ts      # Tests for type guards
+│   │   │   ├── isObject            # Tests object type checking
+│   │   │   └── isShopifyError      # Tests error type validation
+│   │   ├── zonos-api-config.test.ts # Tests for API configuration
+│   │   │   ├── getZonosApiEndpoint # Tests API endpoint construction
+│   │   │   └── getZonosApiUrl      # Tests platform-specific URL selection
+│   │   └── cart-actions.test.ts     # Tests for cart server actions
+│   │       ├── addItem             # Tests adding items to cart
+│   │       ├── removeItem          # Tests removing items from cart
+│   │       ├── updateItemQuantity  # Tests updating item quantities
+│   │       ├── redirectToCheckout  # Tests checkout redirection
+│   │       └── createCartAndSetCookie # Tests cart creation with cookies
+│   └── README.md                    # Testing documentation
+├── vitest.config.ts                 # Vitest configuration (✅ Implemented)
+└── package.json                     # Updated with test scripts (✅ Implemented)
+```
+
+Planned Complete Structure (Future):
 ```
 zonos-commerce/
 ├── src/
 │   ├── components/
 │   │   └── Button/
 │   │       ├── Button.tsx
-│   │       ├── Button.test.tsx       # Unit tests
-│   │       └── Button.a11y.test.tsx  # Accessibility tests
+│   │       ├── Button.test.tsx       # Component unit tests (🔄 Planned)
+│   │       └── Button.a11y.test.tsx  # Accessibility tests (🔄 Planned)
 │   ├── features/
 │   │   └── checkout/
 │   │       ├── CheckoutForm.tsx
-│   │       └── CheckoutForm.test.tsx # Integration tests
+│   │       └── CheckoutForm.test.tsx # Integration tests (🔄 Planned)
 │   └── lib/
 │       └── api/
 │           ├── zonos-api.ts
-│           └── zonos-api.test.ts     # API client tests
+│           └── zonos-api.test.ts     # API client tests (🔄 Planned)
 ├── tests/
-│   ├── e2e/                          # E2E tests with Playwright
+│   ├── unit/                         # Unit tests for pure functions (✅ Implemented)
+│   │   ├── utils.test.ts
+│   │   ├── type-guards.test.ts
+│   │   └── zonos-api-config.test.ts
+│   ├── e2e/                          # E2E tests with Playwright (🔄 Planned)
 │   │   ├── checkout.spec.ts
 │   │   └── product-browsing.spec.ts
-│   ├── mocks/                        # Mock data and services
+│   ├── mocks/                        # Mock data and services (🔄 Planned)
 │   │   ├── handlers.ts
 │   │   └── data.ts
-│   └── utils/                        # Test utilities
+│   └── utils/                        # Test utilities (🔄 Planned)
 │       └── test-utils.tsx
-└── vitest.config.ts                  # Vitest configuration
+├── vitest.config.ts                  # Vitest configuration (✅ Implemented)
+└── playwright.config.ts              # Playwright configuration (🔄 Planned)
 ```
 
 ### Test Configuration
@@ -338,28 +385,19 @@ zonos-commerce/
 #### Vitest Configuration
 
 ```typescript
-// vitest.config.ts
+// vitest.config.ts (Implemented)
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
   test: {
-    environment: 'jsdom',
     globals: true,
-    setupFiles: ['./tests/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}'],
+    environment: 'node',
+    exclude: ['node_modules', '.next', 'dist'],
     coverage: {
       reporter: ['text', 'json', 'html'],
-      exclude: ['**/node_modules/**', '**/dist/**', '**/tests/**']
-    }
+      exclude: ['**/*.test.ts', '**/*.test.tsx'],
+    },
   },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src')
-    }
-  }
 });
 ```
 
@@ -518,84 +556,29 @@ export const handlers = [
 The testing strategy will be integrated into the CI pipeline:
 
 1. **Linting**: Run ESLint to enforce code quality
-2. **Unit and Integration Tests**: Run Vitest tests
-3. **E2E Tests**: Run Playwright tests
-4. **Visual Regression Tests**: Run visual comparison tests
-5. **Coverage Reporting**: Generate and publish test coverage reports
+2. **Unit Tests**: Run Vitest tests for pure functions (✅ Implemented)
+3. **Component Tests**: Run React component tests (🔄 Planned)
+4. **E2E Tests**: Run Playwright tests (🔄 Planned)
+5. **Visual Regression Tests**: Run visual comparison tests (🔄 Planned)
+6. **Coverage Reporting**: Generate and publish test coverage reports (✅ Implemented in configuration)
 
-#### GitHub Actions Workflow Example
+#### Current Implementation in package.json
 
-```yaml
-# .github/workflows/test.yml
-name: Test
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      - name: Upload coverage
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: coverage/
-
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      - name: Build application
-        run: pnpm run build
-      - name: Start application
-        run: pnpm run start & npx wait-on http://localhost:3000
-      - name: Run E2E tests
-        run: pnpm run test:e2e
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: playwright-report
-          path: playwright-report/
+```json
+"scripts": {
+  "dev": "next dev --turbopack",
+  "build": "next build",
+  "start": "next start",
+  "prettier": "prettier --write --ignore-unknown .",
+  "prettier:check": "prettier --check --ignore-unknown .",
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "test:coverage": "vitest run --coverage"
+}
 ```
+
+#### GitHub Actions Workflow Example (Future Implementation)
+// ... existing GitHub workflow example ...
 
 ## Test Documentation
 

@@ -9,7 +9,7 @@ export const ZonosLayoutSetup = ({ children }: { children: ReactNode }) => {
     window.Zonos = Zonos;
 
     const getCartId = async () => {
-      const yourServerUrl = "http://localhost:3000/api/get-cart-id";
+      const yourServerUrl = "https://route.js.zonos.com/api/get-cart-id";
       const response = await fetch(yourServerUrl);
       const json = await response.json();
       return json;
