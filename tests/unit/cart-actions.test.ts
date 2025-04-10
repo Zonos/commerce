@@ -86,7 +86,7 @@ describe("Cart Actions", () => {
   describe("addItem", () => {
     it("should add an item to the cart", async () => {
       // Mock implementation
-      vi.mocked(addToCart).mockResolvedValueOnce({} as any);
+      vi.mocked(addToCart).mockResolvedValueOnce({} as ZonosCart);
 
       // Call the action
       const result = await addItem({}, { sku: "test-sku", quantity: 1 });
@@ -131,7 +131,7 @@ describe("Cart Actions", () => {
         createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValueOnce(mockCart);
-      vi.mocked(removeFromCart).mockResolvedValueOnce({} as any);
+      vi.mocked(removeFromCart).mockResolvedValueOnce({} as ZonosCart);
 
       // Call the action
       const result = await removeItem({}, "item-1");
@@ -197,7 +197,7 @@ describe("Cart Actions", () => {
         createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValueOnce(mockCart);
-      vi.mocked(updateCart).mockResolvedValueOnce({} as any);
+      vi.mocked(updateCart).mockResolvedValueOnce({} as ZonosCart);
 
       // Call the action
       const result = await updateItemQuantity(
@@ -218,7 +218,7 @@ describe("Cart Actions", () => {
         createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValueOnce(mockCart);
-      vi.mocked(removeFromCart).mockResolvedValueOnce({} as any);
+      vi.mocked(removeFromCart).mockResolvedValueOnce({} as ZonosCart);
 
       // Call the action
       const result = await updateItemQuantity(
@@ -239,7 +239,7 @@ describe("Cart Actions", () => {
         createMockCartItem("item-2", "other-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValueOnce(mockCart);
-      vi.mocked(addToCart).mockResolvedValueOnce({} as any);
+      vi.mocked(addToCart).mockResolvedValueOnce({} as ZonosCart);
 
       // Call the action
       const result = await updateItemQuantity(
@@ -321,7 +321,7 @@ describe("Cart Actions", () => {
       vi.mocked(cookies).mockReturnValue({
         get: vi.fn(),
         set: mockSet,
-      } as any);
+      } as unknown as ReturnType<typeof cookies>);
 
       // Call the action
       const result = await createCartAndSetCookie();
