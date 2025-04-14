@@ -1,7 +1,7 @@
-'use client';
-import { type ReactNode, createContext, useMemo, useState } from 'react';
+"use client";
+import { type ReactNode, createContext, useMemo, useState } from "react";
 
-import Script from 'next/script';
+import Script from "next/script";
 
 type ZonosScriptProps = {
   scriptLoaded: boolean;
@@ -29,7 +29,7 @@ export const ZonosScriptContextProvider = ({
       <Script
         onLoad={() => setScriptLoaded(true)}
         src={`${ZONOS_CDN_URL}/dist/scripts/loadZonos.js?timestamp=${timestamp}`}
-        strategy='beforeInteractive'
+        strategy="beforeInteractive"
       />
       {children}
     </ZonosScriptContext.Provider>
