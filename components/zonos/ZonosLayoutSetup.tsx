@@ -1,15 +1,17 @@
-"use client";
-import { type ReactNode, useEffect } from "react";
+'use client';
+import { type ReactNode, useEffect, Suspense } from 'react';
 
-import { Zonos } from "@zonos/elements";
+import { useZonosScript } from 'lib/zonos/hooks/useZonosScript';
 
-export const ZonosLayoutSetup = ({ children }: { children: ReactNode }) => {
+const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
+  const { scriptLoaded } = useZonosScript();
+
   useEffect(() => {
-    // Initialize Zonos into `window` API.
-    window.Zonos = Zonos;
-
+    if (!scriptLoaded) {
+      return;
+    }
     const getCartId = async () => {
-      const yourServerUrl = "/api/get-cart-id";
+      const yourServerUrl = '/api/get-cart-id';
       const response = await fetch(yourServerUrl);
       const json = await response.json();
       return json;
@@ -19,24 +21,32 @@ export const ZonosLayoutSetup = ({ children }: { children: ReactNode }) => {
     void window.Zonos.init({
       checkoutSettings: {
         createCartId: getCartId,
-        placeOrderButtonSelector: "#checkout-button",
+        placeOrderButtonSelector: '#checkout-button',
       },
       storeId: 7744, // Contact support for this information.
-      zonosApiKey: "credential_live_7a128f4e-f192-4232-8992-94dd09eb4437", // Contact support for this information
+      zonosApiKey: 'credential_live_7a128f4e-f192-4232-8992-94dd09eb4437', // Contact support for this information
       helloSettings: {
         onInitSuccess: async () => {
           Zonos.openHelloDialog();
         },
-        productAddToCartElementSelector: ".add-to-cart",
-        productDescriptionElementSelector: ".product-description",
-        productDetailUrlPattern: "/products/.*$",
-        productListUrlPattern: "/products",
-        productTitleElementSelector: ".product-title",
-        showForCountries: "ALL",
-        currencyElementSelector: ".product-price",
+        productAddToCartElementSelector: '.add-to-cart',
+        productDescriptionElementSelector: '.product-description',
+        productDetailUrlPattern: '/products/.*$',
+        productListUrlPattern: '/products',
+        productTitleElementSelector: '.product-title',
+        showForCountries: 'ALL',
+        currencyElementSelector: '.product-price',
       },
     });
-  }, []);
+  }, [scriptLoaded]);
 
   return children;
+};
+
+export const ZonosLayoutSetup = ({ children }: { children: ReactNode }) => {
+  return (
+    <Suspense>
+      <ZonosLayoutSetupWrapper>{children}</ZonosLayoutSetupWrapper>
+    </Suspense>
+  );
 };
