@@ -288,7 +288,7 @@ export async function getCart(): Promise<ZonosCart | undefined> {
 }
 
 // This is largely irrelevant at this time. We will implement this when we hook up Zonos catalog.
-// This is called from `app/api/revalidate.ts` so providers can control revalidation logic.
+// This is called from `app/api/zonos/revalidate.ts` so providers can control revalidation logic.
 export async function revalidate(req: NextRequest): Promise<NextResponse> {
   // We can implement revalidation logic later, for now we just return a 200.
   return NextResponse.json({ status: 200 });

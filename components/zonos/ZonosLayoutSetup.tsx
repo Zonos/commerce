@@ -11,7 +11,7 @@ const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
       return;
     }
     const getCartId = async () => {
-      const yourServerUrl = "/api/get-cart-id";
+      const yourServerUrl = "/api/zonos/get-cart-id";
       const response = await fetch(yourServerUrl);
       const json = await response.json();
       return json;

@@ -280,7 +280,7 @@ export async function getProducts({
   return filteredProducts;
 }
 
-// This is called from `app/api/revalidate.ts` so providers can control revalidation logic.
+// This is called from `app/api/zonos/revalidate.ts` so providers can control revalidation logic.
 export async function revalidate(): Promise<NextResponse> {
   return NextResponse.json({ status: 200 });
 }
