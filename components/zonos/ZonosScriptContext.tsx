@@ -1,7 +1,7 @@
-'use client';
-import { type ReactNode, createContext, useMemo, useState } from 'react';
+"use client";
+import { type ReactNode, createContext, useMemo, useState } from "react";
 
-import Script from 'next/script';
+import Script from "next/script";
 
 type ZonosScriptProps = {
   scriptLoaded: boolean;
