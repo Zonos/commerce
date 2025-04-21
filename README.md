@@ -32,30 +32,61 @@ To fork the repository, use GitHub's fork functionality, clone your forked repos
 
 2. Install dependencies using pnpm
 
-3. Create a `.env.local` file in the root directory with the following variables:
+3. Create a `.env.local` file in the root directory based on the `.env.example` template, which includes:
 
-   - **NEXT_PUBLIC_ZONOS_API_KEY**: Your Zonos API key for organization verification and client-side initialization
-   - **CUSTOMER_GRAPH_TOKEN**: Secret token used for all server-side API calls (both REST and GraphQL) to Zonos Elements
-   - **NEXT_PUBLIC_ZONOS_ENVIRONMENT**: Set to "sandbox" or "production"
-   - **ZONOS_REVALIDATION_SECRET**: Secret used for cache invalidation
-   - **DEPLOYMENT_PLATFORM**: Set to "vercel" or "cloudflare" based on deployment platform
-   - **COMPANY_NAME** and **SITE_NAME**: Your store information
+   **Required server-side variables:**
+   - `CUSTOMER_GRAPH_TOKEN`: Secret token for server-side API calls to Zonos Elements
+   - `SITE_NAME`: The name of your store
+   - `ZONOS_REVALIDATION_SECRET`: Secret used for cache invalidation
+
+   **Required client-side variables:**
+   - `NEXT_PUBLIC_ZONOS_API_KEY`: Your Zonos API key for client-side initialization
+   - `NEXT_PUBLIC_ZONOS_STORE_ID`: Your Zonos store ID
+   - `NEXT_PUBLIC_ZONOS_CDN_URL`: URL to the Zonos Elements CDN
+   - `NEXT_PUBLIC_SITE_NAME`: The name of your store for client-side display
+
+   **Optional configuration variables:**
+   - `DEPLOYMENT_PLATFORM`: Set to "vercel" or "cloudflare" based on deployment platform
+   - `NEXT_PUBLIC_ZONOS_ENVIRONMENT`: Set to "sandbox" or "production"
+   - `NEXT_PUBLIC_COMPANY_NAME`: Your company name for client-side display
 
 The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed client-side. It is retrieved from the Zonos Dashboard under Settings > API Access and is used for all server-side API communications with Zonos Graph.
 
 The `NEXT_PUBLIC_ZONOS_API_KEY` is an organization key used for client-side initialization of Zonos Elements. It allows verification of organization access to the graph and checks for allowed domains in the Zonos Elements API. This key is designed to be safely included in client-side code.
 
-The `DEPLOYMENT_PLATFORM` environment variable determines which platform-specific optimizations to use:
-- Set to `vercel` for Vercel deployments
-- Set to `cloudflare` for Cloudflare Pages deployments
+### Environment Variable Validation
 
-4. The project uses Zod for environment variable validation with separate server and client environments:
-   - `environment.server.ts` - Server-side environment variables validation
-   - `environment.client.ts` - Client-side environment variables validation (prefixed with `NEXT_PUBLIC_`)
+The project uses Zod for robust environment variable validation with separate server and client environments:
 
-   This ensures type safety and validation for all environment variables across the application.
+- **Type Safety**: All environment variables are validated for type correctness at build time
+- **Security**: Prevents accidental exposure of server-side variables to the client
+- **Structure**: 
+  - `lib/environment/environment.server.ts` - Server-side variables validation
+  - `lib/environment/environment.client.ts` - Client-side variables validation (prefixed with `NEXT_PUBLIC_`)
+  - `lib/environment/environment.base.ts` - Shared validation schemas and utilities
 
-5. Start the development server and open the application in your browser
+To use environment variables in your code:
+
+```typescript
+// Server-side code (API routes, server components)
+import { serverEnv } from 'lib/environment/environment.server';
+const token = serverEnv.CUSTOMER_GRAPH_TOKEN;
+
+// Client-side code (hooks, client components)
+import { clientEnv } from 'lib/environment/environment.client';
+const apiKey = clientEnv.NEXT_PUBLIC_ZONOS_API_KEY;
+
+// Anywhere (convenience export)
+import { env } from 'lib/environment';
+const siteName = env.SITE_NAME; // server-side context
+const publicSiteName = env.NEXT_PUBLIC_SITE_NAME; // client-side context
+```
+
+4. Start the development server and open the application in your browser:
+
+```bash
+pnpm dev
+```
 
 ## Development
 

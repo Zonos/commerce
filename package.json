@@ -17,13 +17,15 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@t3-oss/env-core": "^0.4.0",
     "@zonos/elements": "^1.3.183",
     "clsx": "^2.1.1",
     "geist": "^1.3.1",
     "next": "15.3.0-canary.13",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "sonner": "^2.0.1"
+    "sonner": "^2.0.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "^0.1.1",

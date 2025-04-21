@@ -17,9 +17,6 @@ As of the initial implementation, we have set up Vitest for testing pure functio
 - Utility functions in `lib/utils.ts`:
   - `createUrl` and `ensureStartsWith` 
   - `validateEnvironmentVariables` for environment variable validation
-- Type guard functions in `lib/type-guards.ts`:
-  - `isObject` for checking if a value is an object
-  - `isShopifyError` for validating error types
 - API configuration in `lib/zonos/api-config.ts`:
   - `getZonosApiEndpoint` for constructing API endpoints
   - `getZonosApiUrl` for platform-specific API base URLs
@@ -29,11 +26,15 @@ As of the initial implementation, we have set up Vitest for testing pure functio
   - `updateItemQuantity` for updating item quantities
   - `redirectToCheckout` for redirecting to checkout
   - `createCartAndSetCookie` for creating a cart and setting cookies
+- API client in `lib/zonos`:
+  - `zonosFetch` for making API requests to Zonos endpoints
+- Cart functionality in `lib/zonos`:
+  - Cart creation, updating, and management functions
 
 Future implementations will include:
 - React component testing with React Testing Library
 - Form validation logic
-- API client methods
+- Additional API client methods
 
 #### What to Test
 - Individual functions, methods, and classes
@@ -329,12 +330,13 @@ zonos-commerce/
 │   │   │   ├── createUrl           # Tests URL creation
 │   │   │   ├── ensureStartsWith    # Tests string prefix handling
 │   │   │   └── validateEnvironmentVariables  # Tests env var validation
-│   │   ├── type-guards.test.ts      # Tests for type guards
-│   │   │   ├── isObject            # Tests object type checking
-│   │   │   └── isShopifyError      # Tests error type validation
 │   │   ├── zonos-api-config.test.ts # Tests for API configuration
 │   │   │   ├── getZonosApiEndpoint # Tests API endpoint construction
 │   │   │   └── getZonosApiUrl      # Tests platform-specific URL selection
+│   │   ├── zonos-fetch.test.ts      # Tests for the Zonos fetch API client
+│   │   │   └── zonosFetch          # Tests API request handling
+│   │   ├── zonos-cart.test.ts       # Tests for cart functionality
+│   │   │   └── Cart operations     # Tests cart creation and management
 │   │   └── cart-actions.test.ts     # Tests for cart server actions
 │   │       ├── addItem             # Tests adding items to cart
 │   │       ├── removeItem          # Tests removing items from cart
@@ -362,12 +364,14 @@ zonos-commerce/
 │   └── lib/
 │       └── api/
 │           ├── zonos-api.ts
-│           └── zonos-api.test.ts     # API client tests (🔄 Planned)
+│           └── zonos-api.test.ts     # API client tests (✅ Implemented as zonos-fetch.test.ts)
 ├── tests/
 │   ├── unit/                         # Unit tests for pure functions (✅ Implemented)
 │   │   ├── utils.test.ts
-│   │   ├── type-guards.test.ts
-│   │   └── zonos-api-config.test.ts
+│   │   ├── zonos-api-config.test.ts
+│   │   ├── zonos-fetch.test.ts
+│   │   ├── zonos-cart.test.ts
+│   │   └── cart-actions.test.ts
 │   ├── e2e/                          # E2E tests with Playwright (🔄 Planned)
 │   │   ├── checkout.spec.ts
 │   │   └── product-browsing.spec.ts
