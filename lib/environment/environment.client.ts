@@ -1,11 +1,11 @@
-import { createEnv } from '@t3-oss/env-core';
-import { z } from 'zod';
+import { createEnv } from "@t3-oss/env-core";
+import { z } from "zod";
 
 import {
   environmentSchema,
   schemaUrl,
   skipEnvValidation,
-} from './environment.base';
+} from "./environment.base";
 
 /**
  * Client-side environment variables validation schema.
@@ -13,18 +13,18 @@ import {
  */
 export const clientEnv = createEnv({
   skipValidation: skipEnvValidation,
-  clientPrefix: 'NEXT_PUBLIC_',
+  clientPrefix: "NEXT_PUBLIC_",
   onInvalidAccess: (variable) => {
     throw new Error(
-      `❌ Attempted to access a server-side environment variable on the client: ${variable}`
+      `❌ Attempted to access a server-side environment variable on the client: ${variable}`,
     );
   },
   onValidationError: (error) => {
     console.error(
-      '❌ Invalid client environment variables:',
-      error.flatten().fieldErrors
+      "❌ Invalid client environment variables:",
+      error.flatten().fieldErrors,
     );
-    throw new Error('Invalid environment variables');
+    throw new Error("Invalid environment variables");
   },
   client: {
     // Zonos API variables

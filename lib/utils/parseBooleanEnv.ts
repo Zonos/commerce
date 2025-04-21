@@ -9,5 +9,5 @@ export function parseBooleanEnv(value?: string): boolean | undefined {
     return undefined;
   }
 
-  return value === 'true' || value === '1';
+  return value === "true" || value === "1";
 }
