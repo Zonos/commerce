@@ -1,11 +1,11 @@
-import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-core';
+import { z } from 'zod';
 
 import {
   deploymentPlatformSchema,
   schemaUrl,
   skipEnvValidation,
-} from "./environment.base";
+} from './environment.base';
 
 /**
  * Server-side environment variables validation schema.
@@ -23,14 +23,15 @@ export const serverEnv = createEnv({
     DEPLOYMENT_PLATFORM: deploymentPlatformSchema,
 
     // Vercel information (automatically available in Vercel deployments)
-    VERCEL_PROJECT_PRODUCTION_URL: z.string().url().optional(),
+    // This should be just the domain without protocol, as the protocol is added in code
+    VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
   },
   onValidationError: (error) => {
     console.error(
-      "❌ Invalid server environment variables:",
-      error.flatten().fieldErrors,
+      '❌ Invalid server environment variables:',
+      error.flatten().fieldErrors
     );
-    throw new Error("Invalid environment variables");
+    throw new Error('Invalid environment variables');
   },
   runtimeEnvStrict: {
     CUSTOMER_GRAPH_TOKEN: process.env.CUSTOMER_GRAPH_TOKEN,
