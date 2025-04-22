@@ -83,7 +83,7 @@ export function AddToCart({ product }: { product: Product }) {
     <form
       action={async () => {
         addCartItem(finalVariant, product);
-        addItemAction();
+        await addItemAction();
       }}
     >
       <SubmitButton
@@ -91,7 +91,7 @@ export function AddToCart({ product }: { product: Product }) {
         selectedVariantId={selectedVariantId}
       />
       <p aria-live="polite" className="sr-only" role="status">
-        {message}
+        {message || ""}
       </p>
     </form>
   );

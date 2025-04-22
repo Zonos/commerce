@@ -9,7 +9,7 @@ import { getProducts } from "lib/data-samples";
 import { getZonosApiEndpoint } from "lib/zonos/api-config";
 import type { CartResponse, CurrencyCode } from "lib/zonos/api/baseTypes";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   type ZonosCart,
   type ZonosCartByIdOperation,
@@ -45,57 +45,53 @@ export async function zonosFetch<
   method: T["method"];
   body: ExtractPayload<T>;
 }): Promise<T["data"] | never> {
-  try {
-    const hasDynamicEndpoint = endpoint.toString().includes("{");
-    let resolvedEndpoint = endpoint;
+  const hasDynamicEndpoint = endpoint.toString().includes("{");
+  let resolvedEndpoint = endpoint;
 
-    // If the method is GET and the endpoint has dynamic parts, replace them with values from body
-    if (method === "GET" && hasDynamicEndpoint && typeof body === "object") {
-      Object.entries(body).forEach(([key, value]) => {
-        if (resolvedEndpoint.includes(`{${key}}`)) {
-          resolvedEndpoint = resolvedEndpoint.replace(`{${key}}`, value);
-        }
-      });
-    }
-
-    /**
-     * getZonosApiEndpoint returns the correct API URL based on the deployment platform
-     * with fallback logic.
-     */
-    const apiUrl = getZonosApiEndpoint(resolvedEndpoint);
-    const formattedUrl = new URL(apiUrl);
-
-    // Add remaining parameters as query params for GET requests
-    if (method === "GET" && typeof body === "object") {
-      Object.entries(body).forEach(([key, value]) => {
-        // Skip the parameters used in path replacement
-        if (!hasDynamicEndpoint || !endpoint.includes(`{${key}}`)) {
-          formattedUrl.searchParams.set(key, value);
-        }
-      });
-    }
-
-    const result = await fetch(formattedUrl.toString(), {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        credentialToken: CUSTOMER_GRAPH_TOKEN,
-        ...headers,
-      },
-      body: method === "GET" ? undefined : JSON.stringify(body),
+  // If the method is GET and the endpoint has dynamic parts, replace them with values from body
+  if (method === "GET" && hasDynamicEndpoint && typeof body === "object") {
+    Object.entries(body).forEach(([key, value]) => {
+      if (resolvedEndpoint.includes(`{${key}}`)) {
+        resolvedEndpoint = resolvedEndpoint.replace(`{${key}}`, value);
+      }
     });
-    const content = await result.text();
-
-    const json = JSON.parse(content);
-
-    if (json.errors) {
-      throw json.errors;
-    }
-
-    return json;
-  } catch (e) {
-    throw e;
   }
+
+  /**
+   * getZonosApiEndpoint returns the correct API URL based on the deployment platform
+   * with fallback logic.
+   */
+  const apiUrl = getZonosApiEndpoint(resolvedEndpoint);
+  const formattedUrl = new URL(apiUrl);
+
+  // Add remaining parameters as query params for GET requests
+  if (method === "GET" && typeof body === "object") {
+    Object.entries(body).forEach(([key, value]) => {
+      // Skip the parameters used in path replacement
+      if (!hasDynamicEndpoint || !endpoint.includes(`{${key}}`)) {
+        formattedUrl.searchParams.set(key, value);
+      }
+    });
+  }
+
+  const result = await fetch(formattedUrl.toString(), {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      credentialToken: CUSTOMER_GRAPH_TOKEN,
+      ...headers,
+    },
+    body: method === "GET" ? undefined : JSON.stringify(body),
+  });
+  const content = await result.text();
+
+  const json = JSON.parse(content);
+
+  if (json.errors) {
+    throw json.errors;
+  }
+
+  return json;
 }
 
 const reshapeCart = (cart: CartResponse): ZonosCart => {
@@ -289,7 +285,7 @@ export async function getCart(): Promise<ZonosCart | undefined> {
 
 // This is largely irrelevant at this time. We will implement this when we hook up Zonos catalog.
 // This is called from `app/api/zonos/revalidate.ts` so providers can control revalidation logic.
-export async function revalidate(req: NextRequest): Promise<NextResponse> {
+export async function revalidate(): Promise<NextResponse> {
   // We can implement revalidation logic later, for now we just return a 200.
   return NextResponse.json({ status: 200 });
 }

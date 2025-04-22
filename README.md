@@ -36,7 +36,7 @@ To fork the repository, use GitHub's fork functionality, clone your forked repos
 
    **Required server-side variables:**
    - `CUSTOMER_GRAPH_TOKEN`: Secret token for server-side API calls to Zonos Elements
-   - `SITE_NAME`: The name of your store
+   - `NEXT_PUBLIC_SITE_NAME`: The name of your store
    - `ZONOS_REVALIDATION_SECRET`: Secret used for cache invalidation
 
    **Required client-side variables:**
@@ -78,72 +78,6 @@ const apiKey = clientEnv.NEXT_PUBLIC_ZONOS_API_KEY;
 
 // Anywhere (convenience export)
 import { env } from 'lib/environment';
-const siteName = env.SITE_NAME; // server-side context
+const siteName = env.NEXT_PUBLIC_SITE_NAME; // server-side context
 const publicSiteName = env.NEXT_PUBLIC_SITE_NAME; // client-side context
 ```
-
-4. Start the development server and open the application in your browser:
-
-```bash
-pnpm dev
-```
-
-## Development
-
-### Project Structure
-
-The project follows a standard Next.js App Router structure with specialized directories for different components and functionality:
-- App router configuration in the `app` directory
-- Components organized by functionality in the `components` directory
-- Utility functions and shared code in the `lib` directory
-- Static assets in the `public` directory
-- Project specifications in the `specs` directory
-- Tests in the `tests` directory
-
-### Available Scripts
-
-- `pnpm dev` - Start the development server
-- `pnpm build` - Build the application for production
-- `pnpm start` - Start the production server
-- `pnpm lint` - Run ESLint to check for code quality issues
-- `pnpm test` - Run Vitest tests
-- `pnpm tsc` - Run TypeScript type checking
-
-## Deployment
-
-The application is optimized for deployment on both Vercel and Cloudflare:
-
-- Connect your GitHub repository for continuous deployment
-- Both platforms provide automatic deployments:
-  - Production deployments from the main branch
-  - Preview deployments for feature branches and pull requests
-
-The `DEPLOYMENT_PLATFORM` environment variable determines which platform-specific optimizations to use:
-- Set to `vercel` for Vercel deployments
-- Set to `cloudflare` for Cloudflare Pages deployments
-
-For detailed deployment instructions, see the [deployment specification](./specs/deployment.spec.md).
-
-## Documentation
-
-Detailed documentation is available in the `specs` directory:
-
-- [Project Setup](./specs/project-setup.spec.md)
-- [Architecture](./specs/architecture.spec.md)
-- [Zonos Elements Integration](./specs/zonos-elements-integration.spec.md)
-- [Frontend Components](./specs/frontend-components.spec.md)
-- [API Integration](./specs/api-integration.spec.md)
-- [Testing Strategy](./specs/testing-strategy.spec.md)
-- [Deployment](./specs/deployment.spec.md)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a pull request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 

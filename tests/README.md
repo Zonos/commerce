@@ -12,19 +12,14 @@ This project uses Vitest for unit testing.
 
 ```bash
 # Run all tests once
-npm test
+pnpm test
 # or
-npx vitest run
+pnpm dlx vitest run
 
 # Run tests in watch mode (during development)
-npm run test:watch
+pnpm run test:watch
 # or
-npx vitest
-
-# Run tests with coverage report
-npm run test:coverage
-# or
-npx vitest run --coverage
+pnpm dlx vitest
 ```
 
 ## Writing Unit Tests

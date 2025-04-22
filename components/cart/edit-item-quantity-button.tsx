@@ -3,64 +3,62 @@
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { updateItemQuantity } from "components/cart/actions";
-import type { ZonosCartItem } from "lib/zonos/types";
+import { useCart } from "components/cart/cart-context";
 import { useActionState } from "react";
-
-function SubmitButton({ type }: { type: "plus" | "minus" }) {
-  return (
-    <button
-      type="submit"
-      aria-label={
-        type === "plus" ? "Increase item quantity" : "Reduce item quantity"
-      }
-      className={clsx(
-        "ease flex h-full min-w-[36px] max-w-[36px] flex-none items-center justify-center rounded-full p-2 transition-all duration-200 hover:border-neutral-800 hover:opacity-80",
-        {
-          "ml-auto": type === "minus",
-        },
-      )}
-    >
-      {type === "plus" ? (
-        <PlusIcon className="h-4 w-4 dark:text-neutral-500" />
-      ) : (
-        <MinusIcon className="h-4 w-4 dark:text-neutral-500" />
-      )}
-    </button>
-  );
-}
 
 export function EditItemQuantityButton({
   item,
   type,
-  optimisticUpdate,
 }: {
-  item: ZonosCartItem;
+  item: {
+    quantity: number;
+    sku: string;
+  };
   type: "plus" | "minus";
-  optimisticUpdate: (
-    variant: { id?: string; quantity: number },
-    updateType: "plus" | "minus",
-  ) => void;
 }) {
+  const { updateCartItem } = useCart();
   const [message, formAction] = useActionState(updateItemQuantity, null);
-  if (!item.sku) {
-    return null;
-  }
+
   const payload = {
     sku: item.sku,
     quantity: type === "plus" ? item.quantity + 1 : item.quantity - 1,
   };
+
   const updateItemQuantityAction = formAction.bind(null, payload);
 
   return (
     <form
       action={async () => {
-        optimisticUpdate({ id: item.sku, quantity: item.quantity }, type);
-        updateItemQuantityAction();
+        updateCartItem(payload, type);
+        await updateItemQuantityAction();
       }}
     >
-      <SubmitButton type={type} />
+      <button
+        type="submit"
+        className={clsx(
+          "flex h-full min-w-[36px] max-w-[36px] flex-none items-center justify-center rounded px-2",
+          {
+            "ml-auto": type === "minus",
+            "mr-auto": type === "plus",
+          },
+        )}
+        onClick={(e) => {
+          // Only allow clicking on the button, not the form
+          if ((e.target as HTMLElement).tagName === "BUTTON") {
+            e.preventDefault();
+            updateCartItem(payload, type);
+            updateItemQuantityAction();
+          }
+        }}
+      >
+        {type === "plus" ? (
+          <PlusIcon className="h-4 w-4" />
+        ) : (
+          <MinusIcon className="h-4 w-4" />
+        )}
+      </button>
       <p aria-live="polite" className="sr-only" role="status">
-        {message}
+        {message || ""}
       </p>
     </form>
   );

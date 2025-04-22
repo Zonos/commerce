@@ -113,7 +113,7 @@ Following Next.js Commerce's approach, the application will be deployed on Verce
 A one-click deployment option will be provided for quick setup:
 
 ```
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzonos%2Fcommerce&env=ZONOS_API_KEY,NEXT_PUBLIC_ZONOS_ENVIRONMENT,ZONOS_REVALIDATION_SECRET,SITE_NAME,COMPANY_NAME)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzonos%2Fcommerce&env=ZONOS_API_KEY,NEXT_PUBLIC_ZONOS_ENVIRONMENT,ZONOS_REVALIDATION_SECRET,NEXT_PUBLIC_SITE_NAME,COMPANY_NAME)
 ```
 
 ## Deployment Configuration
@@ -424,7 +424,7 @@ DEPLOYMENT_PLATFORM=vercel|cloudflare
 
 # Site Information
 COMPANY_NAME=Zonos Commerce
-SITE_NAME=Zonos Commerce
+NEXT_PUBLIC_SITE_NAME=Zonos Commerce
 NEXT_PUBLIC_APP_URL=https://zonos-commerce.com
 
 # Analytics

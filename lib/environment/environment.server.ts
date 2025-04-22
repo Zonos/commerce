@@ -19,9 +19,6 @@ export const serverEnv = createEnv({
     ZONOS_DEFAULT_URL: schemaUrl.optional(),
     ZONOS_REVALIDATION_SECRET: z.string(),
 
-    // Site information
-    SITE_NAME: z.string(),
-
     // Deployment information
     DEPLOYMENT_PLATFORM: deploymentPlatformSchema,
 
@@ -39,7 +36,6 @@ export const serverEnv = createEnv({
     CUSTOMER_GRAPH_TOKEN: process.env.CUSTOMER_GRAPH_TOKEN,
     ZONOS_DEFAULT_URL: process.env.ZONOS_DEFAULT_URL,
     ZONOS_REVALIDATION_SECRET: process.env.ZONOS_REVALIDATION_SECRET,
-    SITE_NAME: process.env.SITE_NAME,
     DEPLOYMENT_PLATFORM: process.env.DEPLOYMENT_PLATFORM,
     VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
   },

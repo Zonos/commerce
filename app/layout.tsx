@@ -5,17 +5,17 @@ import { GeistSans } from "geist/font/sans";
 import { baseUrl } from "lib/utils";
 import { getCart } from "lib/zonos";
 import Script from "next/script";
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const { SITE_NAME } = process.env;
+const { NEXT_PUBLIC_SITE_NAME } = process.env;
 
 export const metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: SITE_NAME!,
-    template: `%s | ${SITE_NAME}`,
+    default: NEXT_PUBLIC_SITE_NAME!,
+    template: `%s | ${NEXT_PUBLIC_SITE_NAME}`,
   },
   robots: {
     follow: true,
@@ -25,13 +25,14 @@ export const metadata = {
 
 const ZONOS_CDN_URL = process.env.NEXT_PUBLIC_ZONOS_CDN_URL;
 
+// Generate timestamp once outside the component
+const timestamp = Date.now();
+
 export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const timestamp = useMemo(() => Date.now(), []);
-
   // Don't await the fetch, pass the Promise to the context provider
   const cart = getCart();
 

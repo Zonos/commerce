@@ -18,34 +18,3 @@ export const ensureStartsWith = (stringToCheck: string, startsWith: string) =>
   stringToCheck.startsWith(startsWith)
     ? stringToCheck
     : `${startsWith}${stringToCheck}`;
-
-export const validateEnvironmentVariables = () => {
-  const requiredEnvironmentVariables = ["CUSTOMER_GRAPH_TOKEN", "SITE_NAME"];
-  const missingEnvironmentVariables = [] as string[];
-
-  requiredEnvironmentVariables.forEach((envVar) => {
-    if (!process.env[envVar]) {
-      missingEnvironmentVariables.push(envVar);
-    }
-  });
-
-  if (missingEnvironmentVariables.length) {
-    throw new Error(
-      `The following environment variables are missing. Your site will not work without them:\n\n${missingEnvironmentVariables.join(
-        "\n",
-      )}\n`,
-    );
-  }
-
-  // Additional validation for optional environment variables
-  if (process.env.DEPLOYMENT_PLATFORM) {
-    const validPlatforms = ["vercel", "cloudflare"];
-    if (
-      !validPlatforms.includes(process.env.DEPLOYMENT_PLATFORM.toLowerCase())
-    ) {
-      console.warn(
-        `Warning: DEPLOYMENT_PLATFORM value "${process.env.DEPLOYMENT_PLATFORM}" is not recognized. Valid values are: ${validPlatforms.join(", ")}`,
-      );
-    }
-  }
-};

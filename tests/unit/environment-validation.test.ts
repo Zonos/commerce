@@ -29,8 +29,6 @@ describe("parseBooleanEnv", () => {
   });
 });
 
-// Mock to test the environment validation
-// Full integration tests would be complex due to the way t3-env works
 describe("Environment validation", () => {
   const originalEnv = process.env;
   const originalConsoleError = console.error;
@@ -42,13 +40,13 @@ describe("Environment validation", () => {
 
     // Set up minimal environment for successful validation
     process.env.CUSTOMER_GRAPH_TOKEN = "test-token";
-    process.env.SITE_NAME = "Test Site";
     process.env.ZONOS_REVALIDATION_SECRET = "test-secret";
     process.env.NEXT_PUBLIC_ZONOS_API_KEY = "test-api-key";
     process.env.NEXT_PUBLIC_ZONOS_STORE_ID = "1234";
     process.env.NEXT_PUBLIC_ZONOS_CDN_URL = "https://example.com";
     process.env.NEXT_PUBLIC_SITE_NAME = "Test Site";
     process.env.NEXT_PUBLIC_COMPANY_NAME = "Test Company";
+    process.env.NEXT_PUBLIC_ZONOS_ENVIRONMENT = "sandbox";
 
     // Force validation in test
     process.env.NEXT_PUBLIC_VALIDATE_ENV = "true";
@@ -59,27 +57,50 @@ describe("Environment validation", () => {
     console.error = originalConsoleError;
   });
 
+  // Helper function to import environment module and catch any errors
+  async function importEnv(): Promise<typeof import("../../lib/environment")> {
+    // Always use a dynamic import to ensure fresh module evaluation
+    return await import("../../lib/environment");
+  }
+
   it("validates environment variables without throwing when valid", async () => {
-    // This test just ensures the environment setup doesn't throw
-    await expect(import("../../lib/environment")).resolves.not.toThrow();
+    await expect(importEnv()).resolves.not.toThrow();
   });
 
-  // The following tests check that validation works, but are commented out
-  // because they would cause the test to fail on import
-  /*
-  it("throws when CUSTOMER_GRAPH_TOKEN is missing", async () => {
-    delete process.env.CUSTOMER_GRAPH_TOKEN;
-    await expect(import("../../lib/environment")).rejects.toThrow();
-  });
-
-  it("throws when NEXT_PUBLIC_ZONOS_API_KEY is missing", async () => {
-    delete process.env.NEXT_PUBLIC_ZONOS_API_KEY;
-    await expect(import("../../lib/environment")).rejects.toThrow();
+  it("verifies required environment variables are present", async () => {
+    // We'll check that the environment variables are present with expected values
+    const env = await importEnv();
+    expect(env.serverEnv.CUSTOMER_GRAPH_TOKEN).toBe("test-token");
+    expect(env.serverEnv.ZONOS_REVALIDATION_SECRET).toBe("test-secret");
+    expect(env.clientEnv.NEXT_PUBLIC_ZONOS_API_KEY).toBe("test-api-key");
+    expect(env.clientEnv.NEXT_PUBLIC_ZONOS_STORE_ID).toBe("1234");
+    expect(env.clientEnv.NEXT_PUBLIC_ZONOS_CDN_URL).toBe("https://example.com");
+    expect(env.clientEnv.NEXT_PUBLIC_SITE_NAME).toBe("Test Site");
   });
 
   it("throws when URL is invalid", async () => {
     process.env.NEXT_PUBLIC_ZONOS_CDN_URL = "not-a-url";
-    await expect(import("../../lib/environment")).rejects.toThrow();
+    await expect(importEnv()).rejects.toThrow();
+    expect(console.error).toHaveBeenCalled();
   });
-  */
+
+  it("throws when URL has a trailing slash", async () => {
+    process.env.NEXT_PUBLIC_ZONOS_CDN_URL = "https://example.com/";
+    await expect(importEnv()).rejects.toThrow();
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it("accepts valid deployment platform values", async () => {
+    process.env.DEPLOYMENT_PLATFORM = "vercel";
+    await expect(importEnv()).resolves.not.toThrow();
+
+    process.env.DEPLOYMENT_PLATFORM = "cloudflare";
+    await expect(importEnv()).resolves.not.toThrow();
+  });
+
+  it("throws when deployment platform has invalid value", async () => {
+    process.env.DEPLOYMENT_PLATFORM = "invalid-platform";
+    await expect(importEnv()).rejects.toThrow();
+    expect(console.error).toHaveBeenCalled();
+  });
 });

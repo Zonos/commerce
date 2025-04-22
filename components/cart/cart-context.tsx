@@ -192,26 +192,34 @@ export function useCart() {
     cartReducer,
   );
 
-  const updateCartItem = (
-    variant: { id?: string; quantity: number },
-    updateType: UpdateType,
-  ) => {
-    updateOptimisticCart({
-      type: "UPDATE_ITEM",
-      payload: { variant, updateType },
-    });
-  };
+  return useMemo(() => {
+    // Define functions inside useMemo to avoid recreating them on each render
+    const updateCartItem = (
+      variant: { id?: string; quantity: number },
+      updateType: UpdateType,
+    ) => {
+      updateOptimisticCart({
+        type: "UPDATE_ITEM",
+        payload: { variant, updateType },
+      });
+    };
 
-  const addCartItem = (variant: ProductVariant, product: Product) => {
-    updateOptimisticCart({ type: "ADD_ITEM", payload: { variant, product } });
-  };
+    const addCartItem = (variant: ProductVariant, product: Product) => {
+      updateOptimisticCart({ type: "ADD_ITEM", payload: { variant, product } });
+    };
 
-  return useMemo(
-    () => ({
+    const removeCartItem = (sku: string) => {
+      updateOptimisticCart({
+        type: "UPDATE_ITEM",
+        payload: { variant: { id: sku, quantity: 0 }, updateType: "delete" },
+      });
+    };
+
+    return {
       cart: optimisticCart,
       updateCartItem,
       addCartItem,
-    }),
-    [optimisticCart],
-  );
+      removeCartItem,
+    };
+  }, [optimisticCart, updateOptimisticCart]);
 }

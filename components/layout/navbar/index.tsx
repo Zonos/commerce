@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import MobileMenu from "./mobile-menu";
 import Search, { SearchSkeleton } from "./search";
 
-const { SITE_NAME } = process.env;
+const { NEXT_PUBLIC_SITE_NAME } = process.env;
 
 export async function Navbar() {
   const menu = await getMenu("next-js-frontend-header-menu");
@@ -28,7 +28,7 @@ export async function Navbar() {
           >
             <LogoSquare />
             <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
-              {SITE_NAME}
+              {NEXT_PUBLIC_SITE_NAME}
             </div>
           </Link>
           {menu.length ? (

@@ -5,7 +5,7 @@ import LogoSquare from "components/logo-square";
 import { getMenu } from "lib/data-samples";
 import { Suspense } from "react";
 
-const { SITE_NAME } = process.env;
+const { NEXT_PUBLIC_SITE_NAME } = process.env;
 
 export default async function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,7 +13,7 @@ export default async function Footer() {
   const skeleton =
     "w-full h-6 animate-pulse rounded-sm bg-neutral-200 dark:bg-neutral-700";
   const menu = await getMenu("next-js-frontend-footer-menu");
-  const copyrightName = SITE_NAME || "";
+  const copyrightName = NEXT_PUBLIC_SITE_NAME || "";
 
   return (
     <footer className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -24,7 +24,7 @@ export default async function Footer() {
             href="/"
           >
             <LogoSquare size="sm" />
-            <span className="uppercase">{SITE_NAME}</span>
+            <span className="uppercase">{NEXT_PUBLIC_SITE_NAME}</span>
           </Link>
         </div>
         <Suspense

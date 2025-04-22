@@ -32,12 +32,28 @@ vi.mock("../../lib/zonos", async () => {
           data: unknown;
           method: "GET" | "POST" | "PUT";
         },
-      >(params: {
+      >({
+        endpoint,
+        method,
+        body,
+      }: {
         endpoint: T["endpoint"];
         headers?: HeadersInit;
         method: T["method"];
         body: T extends { payload: object } ? T["payload"] : never;
       }): Promise<T["data"]> => {
+        // Log the parameters to show they're being used
+        console.log(`Mock zonosFetch called with: ${method} ${endpoint}`);
+
+        if (endpoint.includes("cart") && "id" in body) {
+          return {
+            id: body.id as string,
+            items: [],
+            adjustments: [],
+            metadata: [],
+          } as T["data"];
+        }
+
         return {
           id: "test-cart-id",
           items: [],
@@ -48,49 +64,49 @@ vi.mock("../../lib/zonos", async () => {
     ),
     getCart: async (): Promise<ZonosCart | undefined> => {
       const cookieStore = cookies();
-      const cartId = (cookieStore as any).get("cartId")?.value;
+      // Use a proper type assertion instead of any
+      type CookieStoreWithGet = ReturnType<typeof cookies> & {
+        get(name: string): { name: string; value: string } | undefined;
+      };
+      const cartId = (cookieStore as CookieStoreWithGet).get("cartId")?.value;
 
       if (!cartId) {
         return undefined;
       }
 
-      try {
-        // Create a type-safe version of zonosFetch for testing
-        const mockZonosFetch = vi.mocked(zonosFetch) as unknown as <T>(params: {
-          endpoint: string;
-          method: "GET" | "POST" | "PUT";
-          body: ExtractPayload<T>;
-          headers?: HeadersInit;
-        }) => Promise<T extends { data: infer D } ? D : unknown>;
+      // Create a type-safe version of zonosFetch for testing
+      const mockZonosFetch = vi.mocked(zonosFetch) as unknown as <T>(params: {
+        endpoint: string;
+        method: "GET" | "POST" | "PUT";
+        body: ExtractPayload<T>;
+        headers?: HeadersInit;
+      }) => Promise<T extends { data: infer D } ? D : unknown>;
 
-        const data = await mockZonosFetch<ZonosCartByIdOperation>({
-          endpoint: "/api/commerce/cart/{id}",
-          method: "GET",
-          body: { id: cartId },
-          headers: {},
-        });
+      const data = await mockZonosFetch<ZonosCartByIdOperation>({
+        endpoint: "/api/commerce/cart/{id}",
+        method: "GET",
+        body: { id: cartId },
+        headers: {},
+      });
 
-        return {
-          id: data.id,
-          items: data.items || [],
-          adjustments: data.adjustments || [],
-          metadata: data.metadata || [],
-          totalQuantity: 0,
-          checkoutUrl: "#",
-          cost: {
-            totalAmount: {
-              amount: "0.00",
-              currencyCode: "USD",
-            },
-            subtotalAmount: {
-              amount: "0.00",
-              currencyCode: "USD",
-            },
+      return {
+        id: data.id,
+        items: data.items || [],
+        adjustments: data.adjustments || [],
+        metadata: data.metadata || [],
+        totalQuantity: 0,
+        checkoutUrl: "#",
+        cost: {
+          totalAmount: {
+            amount: "0.00",
+            currencyCode: "USD",
           },
-        };
-      } catch (error) {
-        throw error;
-      }
+          subtotalAmount: {
+            amount: "0.00",
+            currencyCode: "USD",
+          },
+        },
+      };
     },
   };
 });

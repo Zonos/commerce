@@ -31,7 +31,7 @@ describe("zonosFetch", () => {
     // Call zonosFetch with explicit type parameters
     await zonosFetch<{
       endpoint: string;
-      data: any;
+      data: Record<string, unknown>;
       method: "GET";
       payload: typeof body;
     }>({
@@ -77,7 +77,7 @@ describe("zonosFetch", () => {
     // Call zonosFetch with explicit type parameters
     await zonosFetch<{
       endpoint: string;
-      data: any;
+      data: Record<string, unknown>;
       method: "GET";
       payload: typeof body;
     }>({
@@ -106,7 +106,7 @@ describe("zonosFetch", () => {
     // Call zonosFetch with explicit type parameters
     await zonosFetch<{
       endpoint: string;
-      data: any;
+      data: Record<string, unknown>;
       method: "POST";
       payload: typeof body;
     }>({

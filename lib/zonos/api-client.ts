@@ -7,11 +7,43 @@
 
 import { getZonosApiEndpoint } from "./api-config";
 
+// Define interfaces for the API parameters
+interface ProductData {
+  id: string;
+  price: number;
+  quantity: number;
+  description: string;
+  countryOfOrigin?: string;
+  weight?: {
+    value: number;
+    unit: string;
+  };
+  [key: string]: unknown;
+}
+
+interface CheckoutRedirectUrls {
+  success: string;
+  cancel: string;
+  webhook?: string;
+}
+
+interface OrderData {
+  id: string;
+  currency: string;
+  items: Array<{
+    id: string;
+    price: number;
+    quantity: number;
+    description: string;
+  }>;
+  [key: string]: unknown;
+}
+
 /**
  * Example function to calculate duties and taxes using Zonos Hello API
  */
 export async function calculateDutyAndTax(
-  productData: any,
+  productData: ProductData,
   destinationCountry: string,
 ) {
   try {
@@ -46,7 +78,10 @@ export async function calculateDutyAndTax(
 /**
  * Example function to create a checkout session using Zonos Checkout API
  */
-export async function createCheckoutSession(orderData: any, redirectUrls: any) {
+export async function createCheckoutSession(
+  orderData: OrderData,
+  redirectUrls: CheckoutRedirectUrls,
+) {
   try {
     const endpoint = "checkout/sessions";
     const apiUrl = getZonosApiEndpoint(endpoint);

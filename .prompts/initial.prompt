@@ -2,7 +2,7 @@ I'm preparing a new project.
 
 I would like to write up some specs to get the project started. This is only documentation, so only readme files should be written. This project will be a NextJS Commerce Typescript project. We will be using eslint and typescript and we want the latest (2025) versions of these projects. Provide a SPECS.md in the root with another folder called /specs which will contain each of the individual [filename].spec.md files that describe the project with the specific details.
 
-We are going to use Zonos's eslint and typescript standard configuration. Along with Vitest for the latest unit testing standards. We will be using npm as the package manager. And all other packages should be very mainstream. 
+We are going to use Zonos's eslint and typescript standard configuration. Along with Vitest for the latest unit testing standards. We will be using pnpm as the package manager. And all other packages should be very mainstream. 
 
 We will be integrating Zonos Elements which provide Zonos Hello and Zonos Checkout. The backend will be directly accessed through API endpoints from the Zonos Elements Serverless environment.
 

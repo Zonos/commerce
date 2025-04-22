@@ -12,13 +12,17 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+// Define types for server actions
+export type ActionState = string | void | null;
+type CartItemPayload = {
+  sku?: string;
+  quantity: number;
+};
+
 export async function addItem(
-  prevState: any,
-  payload: {
-    sku?: string;
-    quantity: number;
-  },
-) {
+  prevState: ActionState | null,
+  payload: CartItemPayload,
+): Promise<ActionState> {
   const { sku, quantity } = payload;
   if (!sku) {
     return "Error adding item to cart";
@@ -30,12 +34,16 @@ export async function addItem(
       quantity,
     });
     revalidateTag(TAGS.cart);
-  } catch (e) {
+    return null;
+  } catch {
     return "Error adding item to cart";
   }
 }
 
-export async function removeItem(prevState: any, id: string) {
+export async function removeItem(
+  prevState: ActionState | null,
+  id: string,
+): Promise<ActionState> {
   try {
     const cart = await getCart();
 
@@ -48,21 +56,22 @@ export async function removeItem(prevState: any, id: string) {
     if (lineItem && lineItem.id) {
       await removeFromCart([lineItem.id]);
       revalidateTag(TAGS.cart);
+      return null;
     } else {
       return "Item not found in cart";
     }
-  } catch (e) {
+  } catch {
     return "Error removing item from cart";
   }
 }
 
 export async function updateItemQuantity(
-  prevState: any,
+  prevState: ActionState | null,
   payload: {
     sku: string;
     quantity: number;
   },
-) {
+): Promise<ActionState> {
   const { sku, quantity } = payload;
   try {
     const cart = await getCart();
@@ -88,14 +97,16 @@ export async function updateItemQuantity(
     }
 
     revalidateTag(TAGS.cart);
-  } catch (e) {
-    console.error(e);
+    return null;
+  } catch (error) {
+    console.error(error);
     return "Error updating item quantity";
   }
 }
 
 export async function redirectToCheckout() {
-  let cart = await getCart();
+  // Just ensure cart exists before redirecting
+  await getCart();
   redirect("/checkout");
 }
 

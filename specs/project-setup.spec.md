@@ -224,7 +224,7 @@ DEPLOYMENT_PLATFORM=vercel|cloudflare
 
 # General
 COMPANY_NAME=Zonos Commerce
-SITE_NAME=Zonos Commerce
+NEXT_PUBLIC_SITE_NAME=Zonos Commerce
 ```
 
 For local development, create a `.env.local` file with your actual values.
