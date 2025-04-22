@@ -1,18 +1,18 @@
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addItem,
   createCartAndSetCookie,
   redirectToCheckout,
   removeItem,
   updateItemQuantity,
-} from '../../components/cart/actions';
-import type { CurrencyCode } from '../../lib/zonos/api/baseTypes';
-import type { ZonosCart } from '../../lib/zonos/types';
+} from "../../components/cart/actions";
+import type { CurrencyCode } from "../../lib/zonos/api/baseTypes";
+import type { ZonosCart } from "../../lib/zonos/types";
 
 // Mock all the dependencies before imports
-vi.mock('lib/zonos', () => ({
+vi.mock("lib/zonos", () => ({
   addToCart: vi.fn(),
   createCart: vi.fn(),
   getCart: vi.fn(),
@@ -20,18 +20,18 @@ vi.mock('lib/zonos', () => ({
   updateCart: vi.fn(),
 }));
 
-vi.mock('next/cache', () => ({
+vi.mock("next/cache", () => ({
   revalidateTag: vi.fn(),
 }));
 
-vi.mock('next/headers', () => ({
+vi.mock("next/headers", () => ({
   cookies: vi.fn(() => ({
     get: vi.fn(),
     set: vi.fn(),
   })),
 }));
 
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
 }));
 
@@ -42,7 +42,7 @@ import {
   getCart,
   removeFromCart,
   updateCart,
-} from 'lib/zonos';
+} from "lib/zonos";
 
 // Helper function to create a cart item with all required properties
 const createMockCartItem = (id: string, sku: string, quantity: number) => ({
@@ -50,136 +50,138 @@ const createMockCartItem = (id: string, sku: string, quantity: number) => ({
   sku,
   quantity,
   amount: 10.0,
-  attributes: [{ key: 'color', value: 'blue' }],
-  currencyCode: 'USD' as CurrencyCode,
-  description: 'Test product',
-  imageUrl: 'https://example.com/image.jpg',
-  metadata: [{ key: 'source', value: 'test' }],
-  name: 'Test Product',
-  productId: 'prod-123',
+  attributes: [{ key: "color", value: "blue" }],
+  currencyCode: "USD" as CurrencyCode,
+  description: "Test product",
+  imageUrl: "https://example.com/image.jpg",
+  metadata: [{ key: "source", value: "test" }],
+  name: "Test Product",
+  productId: "prod-123",
   restriction: undefined,
 });
 
 // Helper function to create a mock cart
 const createMockCart = (
-  items: ReturnType<typeof createMockCartItem>[] = []
+  items: ReturnType<typeof createMockCartItem>[] = [],
 ): ZonosCart => ({
-  id: 'test-cart-id',
+  id: "test-cart-id",
   items,
   adjustments: [],
   metadata: [],
   totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
-  checkoutUrl: '#',
+  checkoutUrl: "#",
   cost: {
-    totalAmount: { amount: '10.00', currencyCode: 'USD' as CurrencyCode },
-    subtotalAmount: { amount: '10.00', currencyCode: 'USD' as CurrencyCode },
+    totalAmount: { amount: "10.00", currencyCode: "USD" as CurrencyCode },
+    subtotalAmount: { amount: "10.00", currencyCode: "USD" as CurrencyCode },
   },
 });
 
-describe('Cart Actions', () => {
+describe("Cart Actions", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  describe('addItem', () => {
-    it('should add item to cart', async () => {
+  describe("addItem", () => {
+    it("should add item to cart", async () => {
       const mockCart = createMockCart();
       vi.mocked(getCart).mockResolvedValue(mockCart);
       vi.mocked(addToCart).mockResolvedValue(mockCart);
 
-      const result = await addItem(null, { sku: 'test-sku', quantity: 1 });
+      const result = await addItem(null, { sku: "test-sku", quantity: 1 });
 
       expect(addToCart).toHaveBeenCalledWith({
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 1,
       });
       expect(result).toBeNull();
     });
 
-    it('should return error if sku is missing', async () => {
+    it("should return error if sku is missing", async () => {
       const result = await addItem(null, { quantity: 1 });
 
       expect(addToCart).not.toHaveBeenCalled();
-      expect(result).toBe('Error adding item to cart');
+      expect(result).toBe("Error adding item to cart");
     });
 
-    it('should handle error from addToCart', async () => {
-      vi.mocked(addToCart).mockRejectedValue(new Error('API error'));
+    it("should handle error from addToCart", async () => {
+      vi.mocked(addToCart).mockRejectedValue(new Error("API error"));
 
-      const result = await addItem(null, { sku: 'test-sku', quantity: 1 });
+      const result = await addItem(null, { sku: "test-sku", quantity: 1 });
 
       expect(addToCart).toHaveBeenCalledWith({
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 1,
       });
-      expect(result).toBe('Error adding item to cart');
+      expect(result).toBe("Error adding item to cart");
     });
   });
 
-  describe('removeItem', () => {
-    it('should remove item from cart', async () => {
+  describe("removeItem", () => {
+    it("should remove item from cart", async () => {
       const mockCart = createMockCart([
-        createMockCartItem('item-1', 'test-sku', 1),
+        createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValue(mockCart);
       vi.mocked(removeFromCart).mockResolvedValue(mockCart);
 
-      const result = await removeItem(null, 'item-1');
+      const result = await removeItem(null, "item-1");
 
-      expect(removeFromCart).toHaveBeenCalledWith(['item-1']);
+      expect(removeFromCart).toHaveBeenCalledWith(["item-1"]);
       expect(result).toBeNull();
     });
 
-    it('should return error if cart is not found', async () => {
+    it("should return error if cart is not found", async () => {
       vi.mocked(getCart).mockResolvedValue(undefined);
 
-      const result = await removeItem(null, 'item-1');
+      const result = await removeItem(null, "item-1");
 
       expect(removeFromCart).not.toHaveBeenCalled();
-      expect(result).toBe('Error fetching cart');
+      expect(result).toBe("Error fetching cart");
     });
 
-    it('should return error if item is not found in cart', async () => {
+    it("should return error if item is not found in cart", async () => {
       const mockCart = createMockCart([
-        createMockCartItem('item-2', 'test-sku', 1),
+        createMockCartItem("item-2", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValue(mockCart);
 
-      const result = await removeItem(null, 'item-1');
+      const result = await removeItem(null, "item-1");
 
       expect(removeFromCart).not.toHaveBeenCalled();
-      expect(result).toBe('Item not found in cart');
+      expect(result).toBe("Item not found in cart");
     });
 
-    it('should handle error from getCart', async () => {
-      vi.mocked(getCart).mockRejectedValue(new Error('API error'));
+    it("should handle error from getCart", async () => {
+      vi.mocked(getCart).mockRejectedValue(new Error("API error"));
 
-      const result = await removeItem(null, 'item-1');
+      const result = await removeItem(null, "item-1");
 
       expect(removeFromCart).not.toHaveBeenCalled();
-      expect(result).toBe('Error removing item from cart');
+      expect(result).toBe("Error removing item from cart");
     });
   });
 
-  describe('updateItemQuantity', () => {
-    it('should update item quantity', async () => {
+  describe("updateItemQuantity", () => {
+    it("should update item quantity", async () => {
       const mockCart = createMockCart([
-        createMockCartItem('item-1', 'test-sku', 1),
+        createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValue(mockCart);
       vi.mocked(updateCart).mockResolvedValue(mockCart);
 
       const result = await updateItemQuantity(null, {
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 2,
       });
+
+      // Get the item from the mock cart
+      const lineItem = mockCart.items.find((item) => item.sku === "test-sku");
 
       expect(updateCart).toHaveBeenCalledWith({
         cart: mockCart,
         newUpdateItems: [
           {
-            id: 'item-1',
-            sku: 'test-sku',
+            ...lineItem,
             quantity: 2,
           },
         ],
@@ -187,19 +189,19 @@ describe('Cart Actions', () => {
       expect(result).toBeNull();
     });
 
-    it('should remove item if quantity is 0', async () => {
+    it("should remove item if quantity is 0", async () => {
       const mockCart = createMockCart([
-        createMockCartItem('item-1', 'test-sku', 1),
+        createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValue(mockCart);
       vi.mocked(removeFromCart).mockResolvedValue(mockCart);
 
       const result = await updateItemQuantity(null, {
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 0,
       });
 
-      expect(removeFromCart).toHaveBeenCalledWith(['item-1']);
+      expect(removeFromCart).toHaveBeenCalledWith(["item-1"]);
       expect(result).toBeNull();
     });
 
@@ -209,36 +211,36 @@ describe('Cart Actions', () => {
       vi.mocked(addToCart).mockResolvedValue(mockCart);
 
       const result = await updateItemQuantity(null, {
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 1,
       });
 
       expect(addToCart).toHaveBeenCalledWith({
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 1,
       });
       expect(result).toBeNull();
     });
 
-    it('should return an error if updateCart throws', async () => {
+    it("should return an error if updateCart throws", async () => {
       const mockCart = createMockCart([
-        createMockCartItem('item-1', 'test-sku', 1),
+        createMockCartItem("item-1", "test-sku", 1),
       ]);
       vi.mocked(getCart).mockResolvedValue(mockCart);
-      vi.mocked(updateCart).mockRejectedValue(new Error('API error'));
+      vi.mocked(updateCart).mockRejectedValue(new Error("API error"));
 
       const result = await updateItemQuantity(null, {
-        sku: 'test-sku',
+        sku: "test-sku",
         quantity: 2,
       });
 
       expect(updateCart).toHaveBeenCalled();
-      expect(result).toBe('Error updating item quantity');
+      expect(result).toBe("Error updating item quantity");
     });
   });
 
-  describe('redirectToCheckout', () => {
-    it('should redirect to checkout page', async () => {
+  describe("redirectToCheckout", () => {
+    it("should redirect to checkout page", async () => {
       // Mock getCart
       const mockCart = createMockCart();
       vi.mocked(getCart).mockResolvedValueOnce(mockCart);
@@ -248,15 +250,15 @@ describe('Cart Actions', () => {
 
       // Verify redirect was called
       expect(getCart).toHaveBeenCalled();
-      expect(redirect).toHaveBeenCalledWith('/checkout');
+      expect(redirect).toHaveBeenCalledWith("/checkout");
     });
   });
 
-  describe('createCartAndSetCookie', () => {
-    it('should create a cart and set cookie', async () => {
+  describe("createCartAndSetCookie", () => {
+    it("should create a cart and set cookie", async () => {
       // Mock createCart
       vi.mocked(createCart).mockResolvedValueOnce({
-        id: 'new-cart-id',
+        id: "new-cart-id",
       } as ZonosCart);
 
       // Mock cookie operations
@@ -272,8 +274,8 @@ describe('Cart Actions', () => {
       // Verify the correct dependencies were called
       expect(createCart).toHaveBeenCalled();
       expect(cookies).toHaveBeenCalled();
-      expect(mockSet).toHaveBeenCalledWith('cartId', 'new-cart-id');
-      expect(result).toBe('new-cart-id');
+      expect(mockSet).toHaveBeenCalledWith("cartId", "new-cart-id");
+      expect(result).toBe("new-cart-id");
     });
   });
 });

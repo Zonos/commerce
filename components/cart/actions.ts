@@ -86,7 +86,15 @@ export async function updateItemQuantity(
       if (quantity === 0) {
         await removeFromCart([lineItem.id]);
       } else {
-        await updateCart({ cart, newUpdateItems: [{ ...lineItem, quantity }] });
+        await updateCart({
+          cart,
+          newUpdateItems: [
+            {
+              ...lineItem, // Spread all properties from lineItem
+              quantity, // Override quantity with the new value
+            },
+          ],
+        });
       }
     } else if (quantity > 0) {
       // If the item doesn't exist in the cart and quantity > 0, add it

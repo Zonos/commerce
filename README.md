@@ -49,6 +49,7 @@ To fork the repository, use GitHub's fork functionality, clone your forked repos
    - `DEPLOYMENT_PLATFORM`: Set to "vercel" or "cloudflare" based on deployment platform
    - `NEXT_PUBLIC_ZONOS_ENVIRONMENT`: Set to "sandbox" or "production"
    - `NEXT_PUBLIC_COMPANY_NAME`: Your company name for client-side display
+   - `VERCEL_PROJECT_PRODUCTION_URL`: Your production domain name (without protocol) used for generating absolute URLs
 
 The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed client-side. It is retrieved from the Zonos Dashboard under Settings > API Access and is used for all server-side API communications with Zonos Graph.
 
