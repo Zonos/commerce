@@ -1,11 +1,11 @@
-import { createEnv } from '@t3-oss/env-core';
-import { z } from 'zod';
+import { createEnv } from "@t3-oss/env-core";
+import { z } from "zod";
 
 import {
   deploymentPlatformSchema,
   schemaUrl,
   skipEnvValidation,
-} from './environment.base';
+} from "./environment.base";
 
 /**
  * Server-side environment variables validation schema.
@@ -28,10 +28,10 @@ export const serverEnv = createEnv({
   },
   onValidationError: (error) => {
     console.error(
-      '❌ Invalid server environment variables:',
-      error.flatten().fieldErrors
+      "❌ Invalid server environment variables:",
+      error.flatten().fieldErrors,
     );
-    throw new Error('Invalid environment variables');
+    throw new Error("Invalid environment variables");
   },
   runtimeEnvStrict: {
     CUSTOMER_GRAPH_TOKEN: process.env.CUSTOMER_GRAPH_TOKEN,
