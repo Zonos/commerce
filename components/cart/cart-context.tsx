@@ -1,188 +1,164 @@
-'use client';
+"use client";
 
-import type {
-  Cart,
-  CartItem,
-  Product,
-  ProductVariant
-} from 'lib/shopify/types';
+import type { Product, ProductVariant } from "lib/data-samples/types";
+import type { CurrencyCode } from "lib/zonos/api/baseTypes";
+import type { ZonosCart, ZonosCartItem } from "lib/zonos/types";
 import React, {
   createContext,
   use,
   useContext,
   useMemo,
-  useOptimistic
-} from 'react';
+  useOptimistic,
+} from "react";
 
-type UpdateType = 'plus' | 'minus' | 'delete';
+type UpdateType = "plus" | "minus" | "delete";
 
-type CartAction =
+type ZonosCartAction =
   | {
-      type: 'UPDATE_ITEM';
-      payload: { merchandiseId: string; updateType: UpdateType };
+      type: "UPDATE_ITEM";
+      payload: {
+        variant: { id?: string; quantity: number };
+        updateType: UpdateType;
+      };
     }
   | {
-      type: 'ADD_ITEM';
+      type: "ADD_ITEM";
       payload: { variant: ProductVariant; product: Product };
     };
 
 type CartContextType = {
-  cartPromise: Promise<Cart | undefined>;
+  cartPromise: Promise<ZonosCart | undefined>;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-function calculateItemCost(quantity: number, price: string): string {
-  return (Number(price) * quantity).toString();
-}
-
 function updateCartItem(
-  item: CartItem,
-  updateType: UpdateType
-): CartItem | null {
-  if (updateType === 'delete') return null;
+  item: ZonosCartItem,
+  updateType: UpdateType,
+): ZonosCartItem | null {
+  if (updateType === "delete") return null;
 
   const newQuantity =
-    updateType === 'plus' ? item.quantity + 1 : item.quantity - 1;
+    updateType === "plus" ? item.quantity + 1 : item.quantity - 1;
   if (newQuantity === 0) return null;
-
-  const singleItemAmount = Number(item.cost.totalAmount.amount) / item.quantity;
-  const newTotalAmount = calculateItemCost(
-    newQuantity,
-    singleItemAmount.toString()
-  );
 
   return {
     ...item,
     quantity: newQuantity,
-    cost: {
-      ...item.cost,
-      totalAmount: {
-        ...item.cost.totalAmount,
-        amount: newTotalAmount
-      }
-    }
   };
 }
 
 function createOrUpdateCartItem(
-  existingItem: CartItem | undefined,
+  existingItem: ZonosCartItem | undefined,
   variant: ProductVariant,
-  product: Product
-): CartItem {
+  product: Product,
+): ZonosCartItem {
   const quantity = existingItem ? existingItem.quantity + 1 : 1;
-  const totalAmount = calculateItemCost(quantity, variant.price.amount);
 
   return {
-    id: existingItem?.id,
+    currencyCode: variant.price.currencyCode as CurrencyCode,
     quantity,
-    cost: {
-      totalAmount: {
-        amount: totalAmount,
-        currencyCode: variant.price.currencyCode
-      }
-    },
-    merchandise: {
-      id: variant.id,
-      title: variant.title,
-      selectedOptions: variant.selectedOptions,
-      product: {
-        id: product.id,
-        handle: product.handle,
-        title: product.title,
-        featuredImage: product.featuredImage
-      }
-    }
+    id: existingItem?.id ?? "",
+    restriction: existingItem?.restriction || undefined,
+    amount: Number(variant.price.amount),
+    attributes: variant.selectedOptions.map((option) => ({
+      key: option.name,
+      value: option.value,
+    })),
+    description: existingItem?.description ?? product.description,
+    imageUrl: existingItem?.imageUrl ?? product.featuredImage.url,
+    name: existingItem?.name ?? product.title,
+    sku: variant.id,
+    productId: product.id,
+    metadata: existingItem?.metadata || [
+      {
+        key: "handle",
+        value: product.handle,
+      },
+    ],
   };
 }
 
 function updateCartTotals(
-  lines: CartItem[]
-): Pick<Cart, 'totalQuantity' | 'cost'> {
-  const totalQuantity = lines.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = lines.reduce(
-    (sum, item) => sum + Number(item.cost.totalAmount.amount),
-    0
-  );
-  const currencyCode = lines[0]?.cost.totalAmount.currencyCode ?? 'USD';
+  items: ZonosCartItem[],
+): Pick<ZonosCart, "totalQuantity" | "cost"> {
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmount = items.reduce((sum, item) => sum + Number(item.amount), 0);
+  const currencyCode = items[0]?.currencyCode || "USD";
 
   return {
     totalQuantity,
     cost: {
       subtotalAmount: { amount: totalAmount.toString(), currencyCode },
       totalAmount: { amount: totalAmount.toString(), currencyCode },
-      totalTaxAmount: { amount: '0', currencyCode }
-    }
+    },
   };
 }
 
-function createEmptyCart(): Cart {
+function createEmptyCart(): ZonosCart {
   return {
-    id: undefined,
-    checkoutUrl: '',
+    id: "",
+    items: [],
+    metadata: [],
+    adjustments: [],
     totalQuantity: 0,
-    lines: [],
+    checkoutUrl: "#",
     cost: {
-      subtotalAmount: { amount: '0', currencyCode: 'USD' },
-      totalAmount: { amount: '0', currencyCode: 'USD' },
-      totalTaxAmount: { amount: '0', currencyCode: 'USD' }
-    }
+      subtotalAmount: { amount: "0", currencyCode: "USD" },
+      totalAmount: { amount: "0", currencyCode: "USD" },
+    },
   };
 }
 
-function cartReducer(state: Cart | undefined, action: CartAction): Cart {
+function cartReducer(
+  state: ZonosCart | undefined,
+  action: ZonosCartAction,
+): ZonosCart {
   const currentCart = state || createEmptyCart();
 
   switch (action.type) {
-    case 'UPDATE_ITEM': {
-      const { merchandiseId, updateType } = action.payload;
-      const updatedLines = currentCart.lines
+    case "UPDATE_ITEM": {
+      const { variant, updateType } = action.payload;
+      const updatedItems = currentCart.items
         .map((item) =>
-          item.merchandise.id === merchandiseId
-            ? updateCartItem(item, updateType)
-            : item
+          item.sku === variant.id ? updateCartItem(item, updateType) : item,
         )
-        .filter(Boolean) as CartItem[];
+        .filter(Boolean) as ZonosCartItem[];
 
-      if (updatedLines.length === 0) {
+      if (updatedItems.length === 0) {
         return {
           ...currentCart,
-          lines: [],
-          totalQuantity: 0,
-          cost: {
-            ...currentCart.cost,
-            totalAmount: { ...currentCart.cost.totalAmount, amount: '0' }
-          }
+          items: [],
         };
       }
 
       return {
         ...currentCart,
-        ...updateCartTotals(updatedLines),
-        lines: updatedLines
+        ...updateCartTotals(updatedItems),
+        items: updatedItems,
       };
     }
-    case 'ADD_ITEM': {
+    case "ADD_ITEM": {
       const { variant, product } = action.payload;
-      const existingItem = currentCart.lines.find(
-        (item) => item.merchandise.id === variant.id
+      const existingItem = currentCart.items.find(
+        (item) => item.sku === variant.id,
       );
       const updatedItem = createOrUpdateCartItem(
         existingItem,
         variant,
-        product
+        product,
       );
 
-      const updatedLines = existingItem
-        ? currentCart.lines.map((item) =>
-            item.merchandise.id === variant.id ? updatedItem : item
+      const updatedItems = existingItem
+        ? currentCart.items.map((item) =>
+            item.sku === variant.id ? updatedItem : item,
           )
-        : [...currentCart.lines, updatedItem];
+        : [...currentCart.items, updatedItem];
 
       return {
         ...currentCart,
-        ...updateCartTotals(updatedLines),
-        lines: updatedLines
+        ...updateCartTotals(updatedItems),
+        items: updatedItems,
       };
     }
     default:
@@ -192,10 +168,10 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
 
 export function CartProvider({
   children,
-  cartPromise
+  cartPromise,
 }: {
   children: React.ReactNode;
-  cartPromise: Promise<Cart | undefined>;
+  cartPromise: Promise<ZonosCart | undefined>;
 }) {
   return (
     <CartContext.Provider value={{ cartPromise }}>
@@ -207,32 +183,43 @@ export function CartProvider({
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
 
   const initialCart = use(context.cartPromise);
   const [optimisticCart, updateOptimisticCart] = useOptimistic(
     initialCart,
-    cartReducer
+    cartReducer,
   );
 
-  const updateCartItem = (merchandiseId: string, updateType: UpdateType) => {
-    updateOptimisticCart({
-      type: 'UPDATE_ITEM',
-      payload: { merchandiseId, updateType }
-    });
-  };
+  return useMemo(() => {
+    // Define functions inside useMemo to avoid recreating them on each render
+    const updateCartItem = (
+      variant: { id?: string; quantity: number },
+      updateType: UpdateType,
+    ) => {
+      updateOptimisticCart({
+        type: "UPDATE_ITEM",
+        payload: { variant, updateType },
+      });
+    };
 
-  const addCartItem = (variant: ProductVariant, product: Product) => {
-    updateOptimisticCart({ type: 'ADD_ITEM', payload: { variant, product } });
-  };
+    const addCartItem = (variant: ProductVariant, product: Product) => {
+      updateOptimisticCart({ type: "ADD_ITEM", payload: { variant, product } });
+    };
 
-  return useMemo(
-    () => ({
+    const removeCartItem = (sku: string) => {
+      updateOptimisticCart({
+        type: "UPDATE_ITEM",
+        payload: { variant: { id: sku, quantity: 0 }, updateType: "delete" },
+      });
+    };
+
+    return {
       cart: optimisticCart,
       updateCartItem,
-      addCartItem
-    }),
-    [optimisticCart]
-  );
+      addCartItem,
+      removeCartItem,
+    };
+  }, [optimisticCart, updateOptimisticCart]);
 }

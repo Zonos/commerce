@@ -1,37 +1,41 @@
-'use client';
+"use client";
 
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { removeItem } from 'components/cart/actions';
-import type { CartItem } from 'lib/shopify/types';
-import { useActionState } from 'react';
+import { TrashIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { removeItem } from "components/cart/actions";
+import { useCart } from "components/cart/cart-context";
+import { useActionState } from "react";
 
-export function DeleteItemButton({
-  item,
-  optimisticUpdate
+export default function DeleteItemButton({
+  itemId,
+  sku,
 }: {
-  item: CartItem;
-  optimisticUpdate: any;
+  itemId: string;
+  sku: string;
 }) {
+  const { removeCartItem } = useCart();
   const [message, formAction] = useActionState(removeItem, null);
-  const merchandiseId = item.merchandise.id;
-  const removeItemAction = formAction.bind(null, merchandiseId);
+
+  const removeItemAction = formAction.bind(null, itemId);
 
   return (
     <form
       action={async () => {
-        optimisticUpdate(merchandiseId, 'delete');
-        removeItemAction();
+        removeCartItem(sku);
+        await removeItemAction();
       }}
     >
       <button
-        type="submit"
         aria-label="Remove cart item"
-        className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-neutral-500"
+        className={clsx(
+          "flex h-[17px] w-[17px] items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700",
+        )}
+        type="submit"
       >
-        <XMarkIcon className="mx-[1px] h-4 w-4 text-white dark:text-black" />
+        <TrashIcon className="hover:text-accent-3 mx-[1px] h-4 w-4" />
       </button>
       <p aria-live="polite" className="sr-only" role="status">
-        {message}
+        {message || ""}
       </p>
     </form>
   );

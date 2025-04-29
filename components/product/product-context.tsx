@@ -1,7 +1,12 @@
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { createContext, useContext, useMemo, useOptimistic } from 'react';
+import { useRouter, useSearchParams } from "next/navigation";
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useOptimistic,
+} from "react";
 
 type ProductState = {
   [key: string]: string;
@@ -32,38 +37,40 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     getInitialState(),
     (prevState: ProductState, update: ProductState) => ({
       ...prevState,
-      ...update
-    })
+      ...update,
+    }),
   );
 
-  const updateOption = (name: string, value: string) => {
-    const newState = { [name]: value };
-    setOptimisticState(newState);
-    return { ...state, ...newState };
-  };
+  const value = useMemo(() => {
+    // Define functions inside useMemo to avoid recreating them on each render
+    const updateOption = (name: string, value: string) => {
+      const newState = { [name]: value };
+      setOptimisticState(newState);
+      return { ...state, ...newState };
+    };
 
-  const updateImage = (index: string) => {
-    const newState = { image: index };
-    setOptimisticState(newState);
-    return { ...state, ...newState };
-  };
+    const updateImage = (index: string) => {
+      const newState = { image: index };
+      setOptimisticState(newState);
+      return { ...state, ...newState };
+    };
 
-  const value = useMemo(
-    () => ({
+    return {
       state,
       updateOption,
-      updateImage
-    }),
-    [state]
-  );
+      updateImage,
+    };
+  }, [state, setOptimisticState]);
 
-  return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
+  return (
+    <ProductContext.Provider value={value}>{children}</ProductContext.Provider>
+  );
 }
 
 export function useProduct() {
   const context = useContext(ProductContext);
   if (context === undefined) {
-    throw new Error('useProduct must be used within a ProductProvider');
+    throw new Error("useProduct must be used within a ProductProvider");
   }
   return context;
 }
