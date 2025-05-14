@@ -1,12 +1,12 @@
-'use client';
-import { type ReactNode, Suspense, useEffect } from 'react';
-import { ZONOS_CONFIG } from '../../lib/zonos/constants';
-import { clientEnv } from '../../lib/zonos/environment/environment.client';
+"use client";
+import { type ReactNode, Suspense, useEffect } from "react";
+import { ZONOS_CONFIG } from "../../lib/zonos/constants";
+import { clientEnv } from "../../lib/zonos/environment/environment.client";
 
 const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const getCartId = async () => {
-      const response = await fetch('/api/zonos/get-cart-id');
+      const response = await fetch("/api/zonos/get-cart-id");
       const json = await response.json();
       return json;
     };
