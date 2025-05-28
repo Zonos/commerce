@@ -8,6 +8,16 @@ Zonos Commerce is a feature-rich e-commerce application built on the framework o
 
 For detailed technical specifications and architecture, please refer to [SPECS.md](./SPECS.md).
 
+## Sample Data
+
+The project comes with sample data for demonstration purposes. These files are located in:
+- `/lib/data-samples/samples/products.ts` - Sample product data
+- `/lib/data-samples/samples/collections.ts` - Sample collection data
+- `/lib/data-samples/samples/pages.ts` - Sample page content
+- `/lib/data-samples/samples/menu.ts` - Sample menu structure
+
+For production use, you should replace these sample files with your actual data by modifying these files or implementing custom data fetching logic.
+
 ## Zonos Integration Structure
 
 This project contains three primary Zonos-specific directories that should **not be modified** as they contain critical integration code:
@@ -27,7 +37,9 @@ export const ZONOS_CONFIG: ZonosConfig = {
 };
 ```
 
-Anything not in a `zonos` folder may be freely modified, added to, or removed from the project. The current implementation serves as a reference example of integrating Zonos with an e-commerce site.
+The `ZonosConfig` type is defined in `lib/zonos/constants.ts` and provides proper typing for all available configuration options. This typed interface ensures you're using valid configuration properties for Zonos Elements.
+
+Anything not in a `zonos` folder may be freely modified, added to, or removed from the project. You have complete freedom to create, update, and delete any file that is not inside a `zonos` directory, including all UI components. The current implementation serves as a reference example of integrating Zonos with an e-commerce site.
 
 ## Customization and Updates
 
@@ -138,7 +150,7 @@ The following functions provide the foundation for Zonos integration:
    - `NEXT_PUBLIC_COMPANY_NAME`: Your company name for client-side display
    - `VERCEL_PROJECT_PRODUCTION_URL`: Your production domain name (without protocol) used for generating absolute URLs
 
-The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed client-side. It is retrieved from the Zonos Dashboard under Settings > API Access and is used for all server-side API communications with Zonos Graph.
+The `CUSTOMER_GRAPH_TOKEN` is a required server-side variable used for authenticated API requests to Zonos services. This token is used in the `zonosFetch` function to make authenticated requests to Zonos API endpoints, particularly for cart operations and checkout processing.
 
 The `NEXT_PUBLIC_ZONOS_API_KEY` is an organization key used for client-side initialization of Zonos Elements. It allows verification of organization access to the graph and checks for allowed domains in the Zonos Elements API. This key is designed to be safely included in client-side code.
 
@@ -196,7 +208,16 @@ pnpm start
 
 ## Testing
 
-This project uses Vitest for unit testing, with plans for Storybook (component testing) and Playwright (integration/E2E testing) in the future.
+This project uses Vitest for unit testing. Some unit tests have already been implemented, and there are plans to expand testing with Storybook (component testing) and Playwright (integration/E2E testing) in the future.
+
+### Current Testing Implementation
+
+The current test suite includes:
+- Unit tests for utility functions in `lib/utils.ts`
+- Tests for API configuration in `lib/zonos/api-config.ts`
+- Tests for server actions in `components/cart/actions.ts`
+- Tests for API client functions in `lib/zonos`
+- Tests for environment variable validation
 
 ### Testing Structure
 
@@ -248,6 +269,31 @@ describe('myFunction', () => {
 ```
 
 For more details on testing, see the [tests/README.md](./tests/README.md) file.
+
+## Deployment
+
+This project can be deployed on either Vercel or Cloudflare. The deployment process is optimized based on the platform you choose through the `DEPLOYMENT_PLATFORM` environment variable.
+
+### Vercel Deployment
+
+1. Fork this repository to your GitHub account
+2. Create a new project in Vercel and connect it to your forked repository
+3. Configure the required environment variables
+4. Deploy the project
+
+Vercel will automatically build and deploy your application. Each commit to the main branch will trigger a new production deployment, and pull requests will create preview deployments.
+
+### Cloudflare Deployment
+
+1. Fork this repository to your GitHub account
+2. Create a new project in Cloudflare Pages and connect it to your forked repository
+3. Configure the build settings:
+   - Build command: `pnpm run build`
+   - Output directory: `.next`
+4. Configure the required environment variables
+5. Deploy the project
+
+For detailed deployment configurations and strategies, refer to the [deployment specification](./specs/deployment.spec.md).
 
 ## License
 

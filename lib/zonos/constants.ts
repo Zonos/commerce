@@ -2,17 +2,18 @@ import "@zonos/elements";
 import type { ShowForCountries } from "@zonos/elements";
 
 type ZonosConfig = {
-  PLACE_ORDER_BUTTON: string;
-  PRODUCT_ADD_TO_CART: string;
-  PRODUCT_DESCRIPTION: string;
-  PRODUCT_TITLE: string;
-  PRODUCT_PRICE: string;
-  PRODUCT_DETAIL: string;
-  PRODUCT_LIST: string;
-  SHOW_FOR_COUNTRIES: ShowForCountries;
+  PLACE_ORDER_BUTTON?: string;
+  PRODUCT_ADD_TO_CART?: string;
+  PRODUCT_DESCRIPTION?: string;
+  PRODUCT_TITLE?: string;
+  PRODUCT_PRICE?: string;
+  PRODUCT_DETAIL?: string;
+  PRODUCT_LIST?: string;
+  SHOW_FOR_COUNTRIES?: ShowForCountries;
 };
 
 // Consolidated Zonos configuration object with proper typing
+// These will override information from the Zonos Dashboard settings
 export const ZONOS_CONFIG: ZonosConfig = {
   PLACE_ORDER_BUTTON: "#checkout-button",
   PRODUCT_ADD_TO_CART: ".add-to-cart",
