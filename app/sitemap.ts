@@ -1,6 +1,6 @@
 import { getCollections, getPages, getProducts } from "lib/data-samples";
 import { baseUrl } from "lib/utils";
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 
 type Route = {
   url: string;

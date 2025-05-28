@@ -59,6 +59,7 @@ describe("Environment validation", () => {
 
   // Helper function to import environment module and catch any errors
   async function importEnv(): Promise<
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     typeof import("../../lib/zonos/environment")
   > {
     // Always use a dynamic import to ensure fresh module evaluation

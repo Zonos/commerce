@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { useProduct, useUpdateURL } from "components/product/product-context";
-import { ProductOption, ProductVariant } from "lib/data-samples/types";
+import type { ProductOption, ProductVariant } from "lib/data-samples/types";
 
 type Combination = {
   id: string;

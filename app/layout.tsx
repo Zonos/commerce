@@ -5,7 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { baseUrl } from "lib/utils";
 import { getCart } from "lib/zonos";
 import Script from "next/script";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import "./globals.css";
 

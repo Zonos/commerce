@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { Menu } from "lib/data-samples/types";
+import type { Menu } from "lib/data-samples/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";

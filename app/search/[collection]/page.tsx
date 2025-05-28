@@ -1,5 +1,5 @@
 import { getCollection, getCollectionProducts } from "lib/data-samples";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import Grid from "components/grid";

@@ -1,7 +1,7 @@
 import CartModal from "components/cart/modal";
 import LogoSquare from "components/logo-square";
 import { getMenu } from "lib/data-samples";
-import { Menu } from "lib/data-samples/types";
+import type { Menu } from "lib/data-samples/types";
 import Link from "next/link";
 import { Suspense } from "react";
 import MobileMenu from "./mobile-menu";

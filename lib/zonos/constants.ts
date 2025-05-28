@@ -1,5 +1,5 @@
 import "@zonos/elements";
-import { ShowForCountries } from "@zonos/elements";
+import type { ShowForCountries } from "@zonos/elements";
 
 type ZonosConfig = {
   PLACE_ORDER_BUTTON: string;
