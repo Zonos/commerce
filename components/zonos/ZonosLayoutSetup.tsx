@@ -1,12 +1,12 @@
 "use client";
 import { type ReactNode, Suspense, useEffect } from "react";
-import { clientEnv } from "../../lib/environment/environment.client";
+import { ZONOS_CONFIG } from "../../lib/zonos/constants";
+import { clientEnv } from "../../lib/zonos/environment/environment.client";
 
 const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const getCartId = async () => {
-      const yourServerUrl = "/api/zonos/get-cart-id";
-      const response = await fetch(yourServerUrl);
+      const response = await fetch("/api/zonos/get-cart-id");
       const json = await response.json();
       return json;
     };
@@ -19,7 +19,7 @@ const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
     void window.Zonos.init({
       checkoutSettings: {
         createCartId: getCartId,
-        placeOrderButtonSelector: "#checkout-button",
+        placeOrderButtonSelector: ZONOS_CONFIG.PLACE_ORDER_BUTTON,
       },
       storeId: parseInt(clientEnv.NEXT_PUBLIC_ZONOS_STORE_ID, 10),
       zonosApiKey: clientEnv.NEXT_PUBLIC_ZONOS_API_KEY,
@@ -27,13 +27,13 @@ const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
         onInitSuccess: async () => {
           window.Zonos.openHelloDialog();
         },
-        productAddToCartElementSelector: ".add-to-cart",
-        productDescriptionElementSelector: ".product-description",
-        productDetailUrlPattern: "/products/.*$",
-        productListUrlPattern: "/products",
-        productTitleElementSelector: ".product-title",
-        showForCountries: "ALL",
-        currencyElementSelector: ".product-price",
+        productAddToCartElementSelector: ZONOS_CONFIG.PRODUCT_ADD_TO_CART,
+        productDescriptionElementSelector: ZONOS_CONFIG.PRODUCT_DESCRIPTION,
+        productDetailUrlPattern: ZONOS_CONFIG.PRODUCT_DETAIL,
+        productListUrlPattern: ZONOS_CONFIG.PRODUCT_LIST,
+        productTitleElementSelector: ZONOS_CONFIG.PRODUCT_TITLE,
+        showForCountries: ZONOS_CONFIG.SHOW_FOR_COUNTRIES,
+        currencyElementSelector: ZONOS_CONFIG.PRODUCT_PRICE,
       },
     });
   }, []);

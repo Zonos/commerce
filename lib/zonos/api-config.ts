@@ -4,7 +4,7 @@
  * Selects the appropriate API URL based on the deployment platform
  * with fallback logic.
  */
-import { serverEnv } from "../environment/environment.server";
+import { serverEnv } from "./environment/environment.server";
 
 const VERCEL_ZONOS_API_URL = "https://route.js.zonos.com";
 const CLOUDFLARE_ZONOS_API_URL = "https://route.elements.zonos.com";

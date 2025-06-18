@@ -10,12 +10,12 @@ import { getZonosApiEndpoint } from "lib/zonos/api-config";
 import type { CartResponse, CurrencyCode } from "lib/zonos/api/baseTypes";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import {
-  type ZonosCart,
-  type ZonosCartByIdOperation,
-  type ZonosCartCreateOperation,
-  type ZonosCartItem,
-  type ZonosCartUpdateOperation,
+import type {
+  ZonosCart,
+  ZonosCartByIdOperation,
+  ZonosCartCreateOperation,
+  ZonosCartItem,
+  ZonosCartUpdateOperation,
 } from "./types";
 
 // Type declaration for Node.js process in environments that may not have it

@@ -21,6 +21,7 @@ type ExtractPayload<T> = T extends { payload: object } ? T["payload"] : never;
 // Mock zonosFetch directly instead of importing it
 vi.mock("../../lib/zonos", async () => {
   const originalModule =
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     await vi.importActual<typeof import("../../lib/zonos")>("../../lib/zonos");
 
   return {

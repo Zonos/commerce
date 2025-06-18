@@ -15,7 +15,7 @@ vi.mock("../../lib/environment/environment.server", () => {
 });
 
 // Import the mock to update its values
-import { serverEnv } from "../../lib/environment/environment.server";
+import { serverEnv } from "../../lib/zonos/environment/environment.server";
 
 // Instead of mocking, we'll test the actual behavior
 describe("getZonosApiEndpoint", () => {

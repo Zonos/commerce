@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { parseBooleanEnv } from "../../lib/utils/parseBooleanEnv";
+import { parseBooleanEnv } from "../../lib/zonos/utils/parseBooleanEnv";
 
 describe("parseBooleanEnv", () => {
   it("returns true for 'true'", () => {
@@ -58,9 +58,12 @@ describe("Environment validation", () => {
   });
 
   // Helper function to import environment module and catch any errors
-  async function importEnv(): Promise<typeof import("../../lib/environment")> {
+  async function importEnv(): Promise<
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    typeof import("../../lib/zonos/environment")
+  > {
     // Always use a dynamic import to ensure fresh module evaluation
-    return await import("../../lib/environment");
+    return await import("../../lib/zonos/environment");
   }
 
   it("validates environment variables without throwing when valid", async () => {

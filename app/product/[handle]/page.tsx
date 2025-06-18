@@ -8,7 +8,7 @@ import { ProductProvider } from "components/product/product-context";
 import { ProductDescription } from "components/product/product-description";
 import { HIDDEN_PRODUCT_TAG } from "lib/constants";
 import { getProduct, getProductRecommendations } from "lib/data-samples";
-import { Image } from "lib/data-samples/types";
+import type { Image } from "lib/data-samples/types";
 import Link from "next/link";
 import { Suspense } from "react";
 

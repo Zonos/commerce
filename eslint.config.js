@@ -66,6 +66,14 @@ export default [
       },
     },
     rules: {
+      "@typescript-eslint/no-import-type-side-effects": "error",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          fixStyle: "inline-type-imports",
+          prefer: "type-imports",
+        },
+      ],
       // TypeScript rules
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "error",
