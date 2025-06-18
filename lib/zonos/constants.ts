@@ -14,6 +14,7 @@ type ZonosConfig = {
 
 // Consolidated Zonos configuration object with proper typing
 // These will override information from the Zonos Dashboard settings
+// Remove or leave undefined to use the Zonos Dashboard settings
 export const ZONOS_CONFIG: ZonosConfig = {
   PLACE_ORDER_BUTTON: "#checkout-button",
   PRODUCT_ADD_TO_CART: ".add-to-cart",
