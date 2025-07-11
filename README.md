@@ -72,9 +72,19 @@ The following functions provide the foundation for Zonos integration:
 
 ### Cart Management
 
-- **`createCart()`**: Creates an empty cart in Zonos
+- **`addToCart({ sku, quantity })`**: Adds a product to the cart using the Zonos SDK client
   ```typescript
-  const newCart = await createCart();
+  const updatedCartId = await addToCart({ sku: 'product123', quantity: 1 });
+  ```
+
+- **`removeFromCart({ cart, itemIds })`**: Removes items from the cart using the Zonos SDK client
+  ```typescript
+  const updatedCartId = await removeFromCart({ cart: currentCart, itemIds: ['item-id-1', 'item-id-2'] });
+  ```
+
+- **`updateItemQuantity(null, { sku, quantity })`**: Updates the quantity of an item in the cart
+  ```typescript
+  const updatedCartId = await updateItemQuantity(null, { sku: 'product123', quantity: 2 });
   ```
 
 - **`getCart()`**: Retrieves the current cart from cookies
@@ -82,34 +92,9 @@ The following functions provide the foundation for Zonos integration:
   const currentCart = await getCart();
   ```
 
-- **`addToCart({ sku, quantity })`**: Adds a product to the cart
-  ```typescript
-  const updatedCart = await addToCart({ sku: 'product123', quantity: 1 });
-  ```
-
-- **`removeFromCart(itemIds)`**: Removes items from the cart
-  ```typescript
-  const updatedCart = await removeFromCart(['item-id-1', 'item-id-2']);
-  ```
-
-- **`updateCart({ cart, newUpdateItems })`**: Updates existing items in the cart
-  ```typescript
-  const updatedCart = await updateCart({ 
-    cart: currentCart, 
-    newUpdateItems: [/* updated items */] 
-  });
-  ```
-
 ### API Communication
 
-- **`zonosFetch({ endpoint, method, body })`**: Core function for making authenticated requests to Zonos API
-  ```typescript
-  const response = await zonosFetch({
-    endpoint: '/api/commerce/cart/create',
-    method: 'POST',
-    body: { /* request data */ }
-  });
-  ```
+All server-side Zonos API requests are made using the Zonos TypeScript SDK client, authenticated with `CUSTOMER_GRAPH_TOKEN`.
 
 - **`revalidate()`**: Handles cache invalidation for updated content
   ```typescript
@@ -145,12 +130,10 @@ The following functions provide the foundation for Zonos integration:
    - `NEXT_PUBLIC_SITE_NAME`: The name of your store for client-side display
 
    **Optional configuration variables:**
-   - `DEPLOYMENT_PLATFORM`: Set to "vercel" or "cloudflare" based on deployment platform
    - `NEXT_PUBLIC_ZONOS_ENVIRONMENT`: Set to "sandbox" or "production"
    - `NEXT_PUBLIC_COMPANY_NAME`: Your company name for client-side display
-   - `VERCEL_PROJECT_PRODUCTION_URL`: Your production domain name (without protocol) used for generating absolute URLs
 
-The `CUSTOMER_GRAPH_TOKEN` is a required server-side variable used for authenticated API requests to Zonos services. This token is used in the `zonosFetch` function to make authenticated requests to Zonos API endpoints, particularly for cart operations and checkout processing.
+The `CUSTOMER_GRAPH_TOKEN` is a required server-side variable used for authenticated API requests to Zonos services. This token is used by the Zonos SDK client for all server-side API calls, particularly for cart operations and checkout processing.
 
 The `NEXT_PUBLIC_ZONOS_API_KEY` is an organization key used for client-side initialization of Zonos Elements. It allows verification of organization access to the graph and checks for allowed domains in the Zonos Elements API. This key is designed to be safely included in client-side code.
 
@@ -214,7 +197,6 @@ This project uses Vitest for unit testing. Some unit tests have already been imp
 
 The current test suite includes:
 - Unit tests for utility functions in `lib/utils.ts`
-- Tests for API configuration in `lib/zonos/api-config.ts`
 - Tests for server actions in `components/cart/actions.ts`
 - Tests for API client functions in `lib/zonos`
 - Tests for environment variable validation
@@ -252,7 +234,7 @@ Example test structure:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { myFunction } from '../../path/to/source';
+import { myFunction } from 'path/to/source';
 
 describe('myFunction', () => {
   it('should do something specific', () => {

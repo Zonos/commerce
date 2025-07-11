@@ -17,10 +17,10 @@ The project follows Next.js Commerce's high-performance architecture using React
 - **Package Manager**: pnpm
 - **Linting**: ESLint with Zonos's standard configuration
 - **Testing**: Vitest
-- **Integration**: Zonos Elements (Hello and Checkout)
+- **Integration**: Zonos Elements (Hello and Checkout) via Zonos TypeScript SDK
 - **Backend**: API endpoints from Zonos Elements Serverless environment
 - **Architecture**: Server Components, Server Actions, Edge capabilities
-- **Environment Variables**: Zod validation with separate server/client environments (T3 approach)
+- **Environment Variables**: Zod validation with separate server/client environments (T3 approach, using CUSTOMER_GRAPH_TOKEN for server-side API authentication)
 - **Deployment**: Optimized for both Vercel and Cloudflare with GitHub integration
 - **CI/CD**: GitHub Actions for automated testing and deployment
 

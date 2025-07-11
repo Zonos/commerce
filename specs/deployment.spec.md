@@ -410,26 +410,13 @@ jobs:
 
 ### Environment Variables
 
-Following Next.js Commerce's approach, environment-specific configuration will be managed through environment variables:
-
-```
-# Zonos API
-ZONOS_API_KEY=your_api_key
-NEXT_PUBLIC_ZONOS_ENVIRONMENT=sandbox|production
-ZONOS_REVALIDATION_SECRET=randomsecret123
-ZONOS_WEBHOOK_SECRET=webhooksecret456
-
-# Deployment Configuration
-DEPLOYMENT_PLATFORM=vercel|cloudflare
-
-# Site Information
-COMPANY_NAME=Zonos Commerce
-NEXT_PUBLIC_SITE_NAME=Zonos Commerce
-NEXT_PUBLIC_APP_URL=https://zonos-commerce.com
-
-# Analytics
-NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
-```
+Set the following environment variables for your deployment:
+- `CUSTOMER_GRAPH_TOKEN`: Secret token for server-side API calls to Zonos Elements
+- `ZONOS_REVALIDATION_SECRET`: Secret used for cache invalidation
+- `NEXT_PUBLIC_ZONOS_API_KEY`: Your Zonos API key for client-side initialization
+- `NEXT_PUBLIC_ZONOS_STORE_ID`: Your Zonos store ID
+- `NEXT_PUBLIC_ZONOS_CDN_URL`: URL to the Zonos Elements CDN
+- `NEXT_PUBLIC_SITE_NAME`: The name of your store for client-side display
 
 ### Secrets Management
 

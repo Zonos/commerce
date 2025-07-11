@@ -17,7 +17,7 @@ Zonos Elements are a set of pre-built UI components and APIs that enable cross-b
 
 1. **NEXT_PUBLIC_ZONOS_API_KEY**: Organization key used for client-side initialization of Zonos Elements. This key allows verification of organization access to the graph and checking for allowed domains in the Zonos Elements API. It is designed to be safely included in client-side code.
 
-2. **CUSTOMER_GRAPH_TOKEN**: Secret token used for all server-side API calls (both REST and GraphQL). This token provides secure access to the Zonos Graph API and must never be exposed client-side. Retrieved from Zonos Dashboard (Settings > API Access).
+2. **CUSTOMER_GRAPH_TOKEN**: Secret token used for all server-side API calls (both REST and GraphQL) via the Zonos TypeScript SDK. This token provides secure access to the Zonos Graph API and must never be exposed client-side. Retrieved from Zonos Dashboard (Settings > API Access).
 
 3. **Environment Configuration**:
    - Sandbox environment for development and testing
@@ -83,13 +83,9 @@ Create a client-side component that:
 
 ## Server-Side Integration
 
-### GraphQL API Integration
+### SDK API Integration
 
-Implement a utility function for executing GraphQL queries that:
-- Accepts query string and variables
-- Sends request to Zonos GraphQL API with proper authentication
-- Handles errors appropriately
-- Returns typed response data
+Implement all server-side Zonos API calls using the Zonos TypeScript SDK, authenticated with `CUSTOMER_GRAPH_TOKEN`.
 
 Example functionalities include:
 - Fetching customer orders

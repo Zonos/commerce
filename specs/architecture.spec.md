@@ -57,6 +57,8 @@ Page -> Layout -> Sections -> Components -> Elements
 
 ### Zonos Elements Checkout Integration
 
+All server-side Zonos API requests are made using the Zonos TypeScript SDK client, authenticated with `CUSTOMER_GRAPH_TOKEN`.
+
 Follow the Zonos Elements Readme
 
 ## Performance Optimization
@@ -83,7 +85,7 @@ Following Next.js Commerce patterns:
 The architecture implements type-safe environment variable management using Zod validation, following the T3 stack approach:
 
 1. **Separate Environment Files**:
-   - `environment.server.ts`: Validates server-side environment variables
+   - `environment.server.ts`: Validates server-side environment variables (including `CUSTOMER_GRAPH_TOKEN`)
    - `environment.client.ts`: Validates client-side environment variables (prefixed with `NEXT_PUBLIC_`)
 
 2. **Type Safety**: Provides TypeScript types for environment variables, enabling autocomplete and type checking
