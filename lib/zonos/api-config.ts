@@ -6,8 +6,6 @@
  */
 import { serverEnv } from "./environment/environment.server";
 
-const VERCEL_ZONOS_API_URL = "https://route.js.zonos.com";
-const CLOUDFLARE_ZONOS_API_URL = "https://route.elements.zonos.com";
 const DEFAULT_FALLBACK_URL = "https://route.elements.zonos.com";
 
 /**
@@ -18,13 +16,6 @@ export function getZonosApiUrl(): string {
   // First check if there's a custom default URL specified
   if (serverEnv.ZONOS_DEFAULT_URL) {
     return serverEnv.ZONOS_DEFAULT_URL;
-  }
-
-  // Select URL based on platform with fallback
-  if (serverEnv.DEPLOYMENT_PLATFORM === "vercel") {
-    return VERCEL_ZONOS_API_URL;
-  } else if (serverEnv.DEPLOYMENT_PLATFORM === "cloudflare") {
-    return CLOUDFLARE_ZONOS_API_URL;
   }
 
   // Default fallback

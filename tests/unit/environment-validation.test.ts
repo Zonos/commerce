@@ -35,11 +35,12 @@ describe("Environment validation", () => {
 
   beforeEach(() => {
     vi.resetModules();
+    vi.resetAllMocks();
     process.env = { ...originalEnv };
     console.error = vi.fn();
 
     // Set up minimal environment for successful validation
-    process.env.CUSTOMER_GRAPH_TOKEN = "test-token";
+    process.env.CUSTOMER_GRAPH_SECRET_TOKEN = "test-token";
     process.env.ZONOS_REVALIDATION_SECRET = "test-secret";
     process.env.NEXT_PUBLIC_ZONOS_API_KEY = "test-api-key";
     process.env.NEXT_PUBLIC_ZONOS_STORE_ID = "1234";
@@ -59,7 +60,6 @@ describe("Environment validation", () => {
 
   // Helper function to import environment module and catch any errors
   async function importEnv(): Promise<
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     typeof import("../../lib/zonos/environment")
   > {
     // Always use a dynamic import to ensure fresh module evaluation
@@ -73,7 +73,7 @@ describe("Environment validation", () => {
   it("verifies required environment variables are present", async () => {
     // We'll check that the environment variables are present with expected values
     const env = await importEnv();
-    expect(env.serverEnv.CUSTOMER_GRAPH_TOKEN).toBe("test-token");
+    expect(env.serverEnv.CUSTOMER_GRAPH_SECRET_TOKEN).toBe("test-token");
     expect(env.serverEnv.ZONOS_REVALIDATION_SECRET).toBe("test-secret");
     expect(env.clientEnv.NEXT_PUBLIC_ZONOS_API_KEY).toBe("test-api-key");
     expect(env.clientEnv.NEXT_PUBLIC_ZONOS_STORE_ID).toBe("1234");
@@ -89,20 +89,6 @@ describe("Environment validation", () => {
 
   it("throws when URL has a trailing slash", async () => {
     process.env.NEXT_PUBLIC_ZONOS_CDN_URL = "https://example.com/";
-    await expect(importEnv()).rejects.toThrow();
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it("accepts valid deployment platform values", async () => {
-    process.env.DEPLOYMENT_PLATFORM = "vercel";
-    await expect(importEnv()).resolves.not.toThrow();
-
-    process.env.DEPLOYMENT_PLATFORM = "cloudflare";
-    await expect(importEnv()).resolves.not.toThrow();
-  });
-
-  it("throws when deployment platform has invalid value", async () => {
-    process.env.DEPLOYMENT_PLATFORM = "invalid-platform";
     await expect(importEnv()).rejects.toThrow();
     expect(console.error).toHaveBeenCalled();
   });

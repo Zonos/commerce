@@ -1,7 +1,7 @@
 "use client";
 
+import type { ZonosCurrencyCode } from "@zonos/typescript-sdk";
 import type { Product, ProductVariant } from "lib/data-samples/types";
-import type { CurrencyCode } from "lib/zonos/api/baseTypes";
 import type { ZonosCart, ZonosCartItem } from "lib/zonos/types";
 import React, {
   createContext,
@@ -56,10 +56,13 @@ function createOrUpdateCartItem(
   const quantity = existingItem ? existingItem.quantity + 1 : 1;
 
   return {
-    currencyCode: variant.price.currencyCode as CurrencyCode,
+    countryOfOrigin: product.countryOfOrigin || null,
+    measurements: product.measurements || [],
+    provinceOfOrigin: product.provinceOfOrigin || null,
+    currencyCode: variant.price.currencyCode as ZonosCurrencyCode,
     quantity,
     id: existingItem?.id ?? "",
-    restriction: existingItem?.restriction || undefined,
+    restriction: existingItem?.restriction || null,
     amount: Number(variant.price.amount),
     attributes: variant.selectedOptions.map((option) => ({
       key: option.name,
@@ -98,6 +101,9 @@ function updateCartTotals(
 function createEmptyCart(): ZonosCart {
   return {
     id: "",
+    organizationId: "",
+    createdAt: "",
+    expiresAt: "",
     items: [],
     metadata: [],
     adjustments: [],
