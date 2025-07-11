@@ -1,5 +1,5 @@
+import { parseBooleanEnv } from "lib/zonos/utils/parseBooleanEnv";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { parseBooleanEnv } from "../../lib/zonos/utils/parseBooleanEnv";
 
 describe("parseBooleanEnv", () => {
   it("returns true for 'true'", () => {
@@ -40,7 +40,7 @@ describe("Environment validation", () => {
     console.error = vi.fn();
 
     // Set up minimal environment for successful validation
-    process.env.CUSTOMER_GRAPH_SECRET_TOKEN = "test-token";
+    process.env.CUSTOMER_GRAPH_TOKEN = "test-token";
     process.env.ZONOS_REVALIDATION_SECRET = "test-secret";
     process.env.NEXT_PUBLIC_ZONOS_API_KEY = "test-api-key";
     process.env.NEXT_PUBLIC_ZONOS_STORE_ID = "1234";
@@ -59,11 +59,9 @@ describe("Environment validation", () => {
   });
 
   // Helper function to import environment module and catch any errors
-  async function importEnv(): Promise<
-    typeof import("../../lib/zonos/environment")
-  > {
+  async function importEnv(): Promise<typeof import("lib/zonos/environment")> {
     // Always use a dynamic import to ensure fresh module evaluation
-    return await import("../../lib/zonos/environment");
+    return await import("lib/zonos/environment");
   }
 
   it("validates environment variables without throwing when valid", async () => {
@@ -73,7 +71,7 @@ describe("Environment validation", () => {
   it("verifies required environment variables are present", async () => {
     // We'll check that the environment variables are present with expected values
     const env = await importEnv();
-    expect(env.serverEnv.CUSTOMER_GRAPH_SECRET_TOKEN).toBe("test-token");
+    expect(env.serverEnv.CUSTOMER_GRAPH_TOKEN).toBe("test-token");
     expect(env.serverEnv.ZONOS_REVALIDATION_SECRET).toBe("test-secret");
     expect(env.clientEnv.NEXT_PUBLIC_ZONOS_API_KEY).toBe("test-api-key");
     expect(env.clientEnv.NEXT_PUBLIC_ZONOS_STORE_ID).toBe("1234");

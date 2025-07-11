@@ -3,16 +3,16 @@ import {
   type ZonosCartUpsertInput,
   type ZonosCurrencyCode,
 } from "@zonos/typescript-sdk";
-import { getProducts } from "lib/data-samples";
-import { addToCart, getCart, removeFromCart, updateCart } from "lib/zonos";
-import type { productStubs } from "tests/unit/mocks/_products";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addItem,
   removeItem,
   updateItemQuantity,
-} from "../../components/cart/actions";
-import type { ZonosCart } from "../../lib/zonos/types";
+} from "components/cart/actions";
+import { getProducts } from "lib/data-samples";
+import { addToCart, getCart, removeFromCart, updateCart } from "lib/zonos";
+import type { ZonosCart } from "lib/zonos/types";
+import type { productStubs } from "tests/unit/mocks/_products";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock all the dependencies before imports
 vi.mock("lib/zonos", async () => ({
@@ -45,7 +45,7 @@ vi.mock("next/headers", () => ({
 
 vi.mock("lib/zonos/environment", () => ({
   env: {
-    CUSTOMER_GRAPH_SECRET_TOKEN: "test-token",
+    CUSTOMER_GRAPH_TOKEN: "test-token",
   },
 }));
 

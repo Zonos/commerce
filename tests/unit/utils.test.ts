@@ -1,5 +1,5 @@
+import { createUrl, ensureStartsWith } from "lib/utils";
 import { describe, expect, it } from "vitest";
-import { createUrl, ensureStartsWith } from "../../lib/utils";
 
 describe("createUrl", () => {
   it("creates a URL with no parameters", () => {

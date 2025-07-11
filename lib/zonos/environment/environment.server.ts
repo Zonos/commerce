@@ -11,7 +11,7 @@ export const serverEnv = createEnv({
   skipValidation: skipEnvValidation,
   server: {
     // Zonos API variables
-    CUSTOMER_GRAPH_SECRET_TOKEN: z.string(),
+    CUSTOMER_GRAPH_TOKEN: z.string(),
     ZONOS_DEFAULT_URL: schemaUrl.optional(),
     ZONOS_REVALIDATION_SECRET: z.string(),
   },
@@ -23,7 +23,7 @@ export const serverEnv = createEnv({
     throw new Error("Invalid environment variables");
   },
   runtimeEnvStrict: {
-    CUSTOMER_GRAPH_SECRET_TOKEN: process.env.CUSTOMER_GRAPH_SECRET_TOKEN,
+    CUSTOMER_GRAPH_TOKEN: process.env.CUSTOMER_GRAPH_TOKEN,
     ZONOS_DEFAULT_URL: process.env.ZONOS_DEFAULT_URL,
     ZONOS_REVALIDATION_SECRET: process.env.ZONOS_REVALIDATION_SECRET,
   },

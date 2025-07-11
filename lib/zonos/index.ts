@@ -22,7 +22,7 @@ import type { ZonosCart, ZonosCartItem } from "./types";
 /**
  * This is the token to make requests to Zonos API, make sure to not expose it in client-side code.
  */
-const CUSTOMER_GRAPH_SECRET_TOKEN = env.CUSTOMER_GRAPH_SECRET_TOKEN;
+const CUSTOMER_GRAPH_TOKEN = env.CUSTOMER_GRAPH_TOKEN;
 
 const reshapeCart = (
   cart: NonNullable<ZonosCartByIdQuery["cart"]>,
@@ -178,7 +178,7 @@ export async function addToCart({
   ];
 
   const res = await zonosClient.cartUpsert({
-    credentialToken: CUSTOMER_GRAPH_SECRET_TOKEN,
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
     variables: {
       input: {
         id: cart?.id,
@@ -207,7 +207,7 @@ export async function removeFromCart({
   const newItemsState = cart.items.filter((item) => !itemIds.includes(item.id));
 
   const res = await zonosClient.cartUpsert({
-    credentialToken: CUSTOMER_GRAPH_SECRET_TOKEN,
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
     variables: {
       input: {
         id: cart.id,
@@ -244,7 +244,7 @@ export async function updateCart({
   ];
 
   const res = await zonosClient.cartUpsert({
-    credentialToken: CUSTOMER_GRAPH_SECRET_TOKEN,
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
     variables: {
       input: {
         id: cart.id,
@@ -269,7 +269,7 @@ export async function renewCartIfExpired(cart: ZonosCart): Promise<ZonosCart> {
   }
 
   const res = await zonosClient.cartUpsert({
-    credentialToken: CUSTOMER_GRAPH_SECRET_TOKEN,
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
     variables: {
       input: {
         id: cart.id,
@@ -296,7 +296,7 @@ export async function getCart(): Promise<ZonosCart | undefined> {
   }
 
   const res = await zonosClient.cartById({
-    credentialToken: CUSTOMER_GRAPH_SECRET_TOKEN,
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
     variables: {
       id: cartId,
     },

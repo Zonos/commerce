@@ -1,7 +1,8 @@
 "use client";
 import { type ReactNode, Suspense, useEffect } from "react";
-import { ZONOS_CONFIG } from "../../lib/zonos/constants";
-import { clientEnv } from "../../lib/zonos/environment/environment.client";
+
+import { ZONOS_CONFIG } from "lib/zonos/constants";
+import { clientEnv } from "lib/zonos/environment/environment.client";
 
 const ZonosLayoutSetupWrapper = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
