@@ -33,7 +33,8 @@ export async function addItem(
 
     revalidateTag(TAGS.cart);
     return cartResult?.id;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return "Error adding item to cart";
   }
 }
