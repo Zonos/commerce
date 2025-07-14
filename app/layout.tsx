@@ -4,13 +4,13 @@ import { ZonosLayoutSetup } from "components/zonos/ZonosLayoutSetup";
 import { GeistSans } from "geist/font/sans";
 import { baseUrl } from "lib/utils";
 import { getCart } from "lib/zonos";
+import { env } from "lib/zonos/environment";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const { NEXT_PUBLIC_SITE_NAME } = process.env;
-
+const NEXT_PUBLIC_SITE_NAME = env.NEXT_PUBLIC_SITE_NAME;
 export const metadata = {
   metadataBase: new URL(baseUrl),
   title: {
@@ -23,7 +23,7 @@ export const metadata = {
   },
 };
 
-const ZONOS_CDN_URL = process.env.NEXT_PUBLIC_ZONOS_CDN_URL;
+const ZONOS_CDN_URL = env.NEXT_PUBLIC_ZONOS_CDN_URL;
 
 // Generate timestamp once outside the component
 const timestamp = Date.now();
@@ -48,7 +48,7 @@ export default async function RootLayout({
             <Navbar />
             <main>
               {children}
-              <Toaster closeButton />
+              <Toaster closeButton richColors position="bottom-center" />
             </main>
           </CartProvider>
         </ZonosLayoutSetup>

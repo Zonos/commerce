@@ -5,96 +5,28 @@
  * using the platform-specific configuration.
  */
 
+import {
+  zonosClient,
+  type ZonosCartByIdQuery,
+  type ZonosCartCreateInput,
+  type ZonosCurrencyCode,
+  type ZonosItemMeasurementInput,
+} from "@zonos/typescript-sdk";
 import { getProducts } from "lib/data-samples";
-import { getZonosApiEndpoint } from "lib/zonos/api-config";
-import type { CartResponse, CurrencyCode } from "lib/zonos/api/baseTypes";
+
+import { env } from "lib/zonos/environment";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type {
-  ZonosCart,
-  ZonosCartByIdOperation,
-  ZonosCartCreateOperation,
-  ZonosCartItem,
-  ZonosCartUpdateOperation,
-} from "./types";
-
-// Type declaration for Node.js process in environments that may not have it
-declare const process: {
-  env: {
-    CUSTOMER_GRAPH_TOKEN?: string;
-  };
-};
+import type { ZonosCart, ZonosCartItem } from "./types";
 
 /**
  * This is the token to make requests to Zonos API, make sure to not expose it in client-side code.
  */
-const CUSTOMER_GRAPH_TOKEN = process.env.CUSTOMER_GRAPH_TOKEN!;
+const CUSTOMER_GRAPH_TOKEN = env.CUSTOMER_GRAPH_TOKEN;
 
-type ExtractPayload<T> = T extends { payload: object } ? T["payload"] : never;
-
-export async function zonosFetch<
-  T extends { endpoint: string; data: unknown; method: "GET" | "POST" | "PUT" },
->({
-  endpoint,
-  headers,
-  method,
-  body,
-}: {
-  endpoint: T["endpoint"];
-  headers?: HeadersInit;
-  method: T["method"];
-  body: ExtractPayload<T>;
-}): Promise<T["data"] | never> {
-  const hasDynamicEndpoint = endpoint.toString().includes("{");
-  let resolvedEndpoint = endpoint;
-
-  // If the method is GET and the endpoint has dynamic parts, replace them with values from body
-  if (method === "GET" && hasDynamicEndpoint && typeof body === "object") {
-    Object.entries(body).forEach(([key, value]) => {
-      if (resolvedEndpoint.includes(`{${key}}`)) {
-        resolvedEndpoint = resolvedEndpoint.replace(`{${key}}`, value);
-      }
-    });
-  }
-
-  /**
-   * getZonosApiEndpoint returns the correct API URL based on the deployment platform
-   * with fallback logic.
-   */
-  const apiUrl = getZonosApiEndpoint(resolvedEndpoint);
-  const formattedUrl = new URL(apiUrl);
-
-  // Add remaining parameters as query params for GET requests
-  if (method === "GET" && typeof body === "object") {
-    Object.entries(body).forEach(([key, value]) => {
-      // Skip the parameters used in path replacement
-      if (!hasDynamicEndpoint || !endpoint.includes(`{${key}}`)) {
-        formattedUrl.searchParams.set(key, value);
-      }
-    });
-  }
-
-  const result = await fetch(formattedUrl.toString(), {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      credentialToken: CUSTOMER_GRAPH_TOKEN,
-      ...headers,
-    },
-    body: method === "GET" ? undefined : JSON.stringify(body),
-  });
-  const content = await result.text();
-
-  const json = JSON.parse(content);
-
-  if (json.errors) {
-    throw json.errors;
-  }
-
-  return json;
-}
-
-const reshapeCart = (cart: CartResponse): ZonosCart => {
+const reshapeCart = (
+  cart: NonNullable<ZonosCartByIdQuery["cart"]>,
+): ZonosCart => {
   const subtotalAmount = cart.items.reduce(
     (acc, item) => acc + item.amount * item.quantity,
     0,
@@ -108,7 +40,41 @@ const reshapeCart = (cart: CartResponse): ZonosCart => {
     0,
   );
   return {
-    ...cart,
+    organizationId: cart.organizationId,
+    createdAt: cart.createdAt,
+    expiresAt: cart.expiresAt,
+    id: cart.id,
+    adjustments: cart.adjustments,
+    items: cart.items.map((item) => ({
+      ...item,
+      measurements:
+        item.measurements?.flatMap((measurement) =>
+          measurement
+            ? {
+                source: measurement.source,
+                type: measurement.type,
+                unitOfMeasure: measurement.unitOfMeasure,
+                value: measurement.value,
+              }
+            : [],
+        ) || [],
+      // Exclude all null values from metadata and attributes
+      metadata:
+        item.metadata
+          ?.map((metadata) => ({
+            key: metadata?.key || "",
+            value: metadata?.value || "",
+          }))
+          .filter((metadata) => metadata.key && metadata.value) || [],
+      attributes:
+        item.attributes
+          ?.map((attribute) => ({
+            key: attribute?.key || "",
+            value: attribute?.value || "",
+          }))
+          .filter((attr) => attr.key && attr.value) || [],
+    })),
+    metadata: cart.metadata,
     totalQuantity,
     checkoutUrl: "#",
     cost: {
@@ -124,17 +90,35 @@ const reshapeCart = (cart: CartResponse): ZonosCart => {
   };
 };
 
-export async function createCart(): Promise<ZonosCart> {
-  const res = await zonosFetch<ZonosCartCreateOperation>({
-    endpoint: "/api/commerce/cart/create",
-    body: {
-      items: [],
-      adjustments: [],
-    },
-    method: "POST",
-  });
-  return reshapeCart(res);
-}
+const buildCartCreateInput = (items: ZonosCartCreateInput["items"]) => {
+  return items.map(
+    (item) =>
+      ({
+        amount: item.amount,
+        provinceOfOrigin: item.provinceOfOrigin || null,
+        currencyCode: item.currencyCode,
+        quantity: item.quantity,
+        countryOfOrigin: item.countryOfOrigin || null,
+        measurements:
+          item.measurements?.flatMap((measurement) =>
+            measurement
+              ? ({
+                  type: measurement.type,
+                  unitOfMeasure: measurement.unitOfMeasure,
+                  value: measurement.value,
+                } satisfies ZonosItemMeasurementInput)
+              : [],
+          ) || [],
+        productId: item.productId,
+        sku: item.sku,
+        name: item.name,
+        imageUrl: item.imageUrl,
+        attributes: item.attributes,
+        metadata: item.metadata,
+        description: item.description,
+      }) satisfies ZonosCartCreateInput["items"][number],
+  );
+};
 
 export async function addToCart({
   sku,
@@ -147,23 +131,18 @@ export async function addToCart({
   const product = products.find((product) =>
     product.variants.some((variant) => variant.id === sku),
   );
-
   if (!product) {
     throw new Error("Product not found");
   }
 
   const variant = product.variants.find((variant) => variant.id === sku)!;
 
-  let cart = await getCart();
+  const cart = await getCart();
 
-  if (!cart) {
-    cart = await createCart();
-  }
-
-  const foundItem = cart.items.find((item) => item.sku === sku);
+  const foundItem = cart?.items.find((item) => item.sku === sku);
 
   // If the item already exists, update the quantity
-  const addedItem = foundItem
+  const addedItem: ZonosCartCreateInput["items"][number] = foundItem
     ? {
         ...foundItem,
         quantity: quantity + foundItem.quantity,
@@ -171,9 +150,12 @@ export async function addToCart({
     : {
         // If the item doesn't exist, add it
         quantity,
+        countryOfOrigin: product.countryOfOrigin,
+        provinceOfOrigin: product.provinceOfOrigin,
+        measurements: product.measurements || [],
         amount: Number(variant.price.amount),
-        currencyCode: variant.price.currencyCode as CurrencyCode,
-        description: product.description,
+        currencyCode: variant.price.currencyCode as ZonosCurrencyCode,
+        description: product.description || null,
         sku: variant.id,
         productId: product.id,
         imageUrl: product.featuredImage.url,
@@ -189,45 +171,62 @@ export async function addToCart({
           },
         ],
       };
-
-  const itemsAdd: ZonosCartUpdateOperation["payload"]["itemsAdd"] = [
-    // Exclude the item matching the sku
-    ...cart.items.flatMap((item) =>
-      item.sku !== sku
-        ? {
-            ...item,
-            id: undefined,
-          }
-        : [],
-    ),
+  // merge added item with existing items from the cart
+  const newItemsState = [
+    ...(cart?.items.filter((item) => item.sku !== sku) || []),
     addedItem,
   ];
 
-  const res = await zonosFetch<ZonosCartUpdateOperation>({
-    endpoint: "/api/commerce/cart/update",
-    body: {
-      id: cart.id,
-      itemsAdd,
-      itemsRemove: cart.items.map((item) => item.id),
+  const res = await zonosClient.cartUpsert({
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
+    variables: {
+      input: {
+        id: cart?.id,
+        items: buildCartCreateInput(newItemsState),
+        adjustments: cart?.adjustments || [],
+        metadata: cart?.metadata || [],
+      },
     },
-    method: "PUT",
   });
-  return reshapeCart(res);
+
+  if (!res.json?.cartUpsert) {
+    console.error(res.errors);
+    throw new Error("Failed to create cart");
+  }
+
+  return reshapeCart(res.json.cartUpsert);
 }
 
-export async function removeFromCart(itemIds: string[]): Promise<ZonosCart> {
-  const cookieStore = await cookies();
-  const cartId = cookieStore.get("cartId")?.value!;
-  const res = await zonosFetch<ZonosCartUpdateOperation>({
-    endpoint: "/api/commerce/cart/update",
-    body: {
-      id: cartId,
-      itemsRemove: itemIds,
+export async function removeFromCart({
+  cart,
+  itemIds,
+}: {
+  cart: ZonosCart;
+  itemIds: string[];
+}): Promise<ZonosCart> {
+  // remove items from the cart items
+  const newItemsState = cart.items.filter((item) => !itemIds.includes(item.id));
+
+  const res = await zonosClient.cartUpsert({
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
+    variables: {
+      input: {
+        id: cart.id,
+        items: buildCartCreateInput(newItemsState),
+        adjustments: cart.adjustments,
+        metadata: cart.metadata,
+      },
     },
-    method: "PUT",
   });
 
-  return reshapeCart(res);
+  if (!res.json?.cartUpsert) {
+    throw new Error("Failed to delete cart items");
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set("cartId", res.json.cartUpsert.id);
+
+  return reshapeCart(res.json.cartUpsert);
 }
 
 export async function updateCart({
@@ -237,31 +236,56 @@ export async function updateCart({
   cart: ZonosCart;
   newUpdateItems: ZonosCartItem[];
 }): Promise<ZonosCart> {
-  const res = await zonosFetch<ZonosCartUpdateOperation>({
-    endpoint: "/api/commerce/cart/update",
-    body: {
-      id: cart.id,
-      adjustments: cart.adjustments.map((adjustment) => ({
-        ...adjustment,
-        productId: adjustment.productId || undefined,
-        description: adjustment.description || undefined,
-        sku: adjustment.sku || undefined,
-      })),
-      itemsAdd: newUpdateItems.map((item) => ({
-        ...item,
-        id: undefined,
-        description: item.description || undefined,
-        sku: item.sku || undefined,
-        productId: item.productId || undefined,
-        imageUrl: item.imageUrl || undefined,
-        name: item.name || undefined,
-      })),
-      itemsRemove: newUpdateItems.map((item) => item.id),
+  // merge new update items with the existing cart items, remove duplicates
+  const newItems: ZonosCartCreateInput["items"] = [
+    ...cart.items.filter(
+      (item) => !newUpdateItems.some((newItem) => newItem.id === item.id),
+    ),
+    ...newUpdateItems,
+  ];
+
+  const res = await zonosClient.cartUpsert({
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
+    variables: {
+      input: {
+        id: cart.id,
+        items: buildCartCreateInput(newItems),
+        adjustments: cart.adjustments,
+        metadata: cart.metadata,
+      },
     },
-    method: "PUT",
   });
 
-  return reshapeCart(res);
+  if (!res.json?.cartUpsert) {
+    throw new Error("Failed to update cart");
+  }
+
+  return reshapeCart(res.json.cartUpsert);
+}
+
+export async function renewCartIfExpired(cart: ZonosCart): Promise<ZonosCart> {
+  // Still valid, return the cart
+  if (!cart.expiresAt || new Date(cart.expiresAt) > new Date()) {
+    return reshapeCart(cart);
+  }
+
+  const res = await zonosClient.cartUpsert({
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
+    variables: {
+      input: {
+        id: cart.id,
+        items: buildCartCreateInput(cart.items),
+        adjustments: cart.adjustments,
+        metadata: cart.metadata,
+      },
+    },
+  });
+
+  if (!res.json?.cartUpsert) {
+    throw new Error(res.errors?.join(", ") || "Failed to renew cart");
+  }
+
+  return reshapeCart(res.json.cartUpsert);
 }
 
 export async function getCart(): Promise<ZonosCart | undefined> {
@@ -272,15 +296,18 @@ export async function getCart(): Promise<ZonosCart | undefined> {
     return undefined;
   }
 
-  const res = await zonosFetch<ZonosCartByIdOperation>({
-    endpoint: "/api/commerce/cart/{id}",
-    body: {
+  const res = await zonosClient.cartById({
+    credentialToken: CUSTOMER_GRAPH_TOKEN,
+    variables: {
       id: cartId,
     },
-    method: "GET",
   });
 
-  return reshapeCart(res);
+  if (!res.json?.cart) {
+    return undefined;
+  }
+
+  return reshapeCart(res.json.cart);
 }
 
 // This is largely irrelevant at this time. We will implement this when we hook up Zonos catalog.

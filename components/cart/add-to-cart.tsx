@@ -5,7 +5,8 @@ import clsx from "clsx";
 import { addItem } from "components/cart/actions";
 import { useProduct } from "components/product/product-context";
 import type { Product, ProductVariant } from "lib/data-samples/types";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import { useCart } from "./cart-context";
 
 function SubmitButton({
@@ -62,6 +63,12 @@ export function AddToCart({ product }: { product: Product }) {
   const { addCartItem } = useCart();
   const { state } = useProduct();
   const [message, formAction] = useActionState(addItem, null);
+
+  useEffect(() => {
+    if (message) {
+      toast.error(message);
+    }
+  }, [message]);
 
   const variant = variants.find((variant: ProductVariant) =>
     variant.selectedOptions.every(

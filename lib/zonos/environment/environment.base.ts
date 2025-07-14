@@ -1,6 +1,5 @@
+import { parseBooleanEnv } from "lib/zonos/utils/parseBooleanEnv";
 import { z } from "zod";
-
-import { parseBooleanEnv } from "../utils/parseBooleanEnv";
 
 export const inProdEnvironment = process.env.NODE_ENV === "production";
 export const inTestEnvironment = process.env.NODE_ENV === "test";

@@ -4,7 +4,8 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { removeItem } from "components/cart/actions";
 import { useCart } from "components/cart/cart-context";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function DeleteItemButton({
   itemId,
@@ -17,6 +18,12 @@ export default function DeleteItemButton({
   const [message, formAction] = useActionState(removeItem, null);
 
   const removeItemAction = formAction.bind(null, itemId);
+
+  useEffect(() => {
+    if (message) {
+      toast.error(message);
+    }
+  }, [message]);
 
   return (
     <form

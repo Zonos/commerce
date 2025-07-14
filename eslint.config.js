@@ -100,4 +100,17 @@ export default [
       "no-redeclare": "warn",
     },
   },
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          fixStyle: "inline-type-imports",
+          prefer: "type-imports",
+          disallowTypeAnnotations: false,
+        },
+      ],
+    },
+  },
 ];

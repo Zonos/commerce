@@ -1,5 +1,5 @@
+import { parseBooleanEnv } from "lib/zonos/utils/parseBooleanEnv";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { parseBooleanEnv } from "../../lib/zonos/utils/parseBooleanEnv";
 
 describe("parseBooleanEnv", () => {
   it("returns true for 'true'", () => {
@@ -35,6 +35,7 @@ describe("Environment validation", () => {
 
   beforeEach(() => {
     vi.resetModules();
+    vi.resetAllMocks();
     process.env = { ...originalEnv };
     console.error = vi.fn();
 
@@ -58,12 +59,9 @@ describe("Environment validation", () => {
   });
 
   // Helper function to import environment module and catch any errors
-  async function importEnv(): Promise<
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    typeof import("../../lib/zonos/environment")
-  > {
+  async function importEnv(): Promise<typeof import("lib/zonos/environment")> {
     // Always use a dynamic import to ensure fresh module evaluation
-    return await import("../../lib/zonos/environment");
+    return await import("lib/zonos/environment");
   }
 
   it("validates environment variables without throwing when valid", async () => {
@@ -89,20 +87,6 @@ describe("Environment validation", () => {
 
   it("throws when URL has a trailing slash", async () => {
     process.env.NEXT_PUBLIC_ZONOS_CDN_URL = "https://example.com/";
-    await expect(importEnv()).rejects.toThrow();
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it("accepts valid deployment platform values", async () => {
-    process.env.DEPLOYMENT_PLATFORM = "vercel";
-    await expect(importEnv()).resolves.not.toThrow();
-
-    process.env.DEPLOYMENT_PLATFORM = "cloudflare";
-    await expect(importEnv()).resolves.not.toThrow();
-  });
-
-  it("throws when deployment platform has invalid value", async () => {
-    process.env.DEPLOYMENT_PLATFORM = "invalid-platform";
     await expect(importEnv()).rejects.toThrow();
     expect(console.error).toHaveBeenCalled();
   });

@@ -1,48 +1,25 @@
 import "@zonos/elements";
 import type {
-  CartByIdPayload,
-  CartByIdResponse,
-  CartCreatePayload,
-  CartCreateResponse,
-  CartResponse,
-  CartUpdatePayload,
-  CartUpdateResponse,
-  CurrencyCode,
-} from "lib/zonos/api/baseTypes";
+  ZonosCartCreateInput,
+  ZonosCurrencyCode,
+} from "@zonos/typescript-sdk";
+import type { CartResponse } from "lib/zonos/api/baseTypes";
 
 export type ZonosCart = CartResponse & {
   totalQuantity: number;
   cost: {
     subtotalAmount: {
       amount: string;
-      currencyCode: CurrencyCode;
+      currencyCode: ZonosCurrencyCode;
     };
     totalAmount: {
       amount: string;
-      currencyCode: CurrencyCode;
+      currencyCode: ZonosCurrencyCode;
     };
   };
   checkoutUrl: string;
 };
 
 export type ZonosCartItem = CartResponse["items"][number];
-export type ZonosCartCreateOperation = {
-  payload: CartCreatePayload;
-  endpoint: "/api/commerce/cart/create";
-  data: CartCreateResponse;
-  method: "POST";
-};
 
-export type ZonosCartUpdateOperation = {
-  payload: CartUpdatePayload;
-  endpoint: "/api/commerce/cart/update";
-  data: CartUpdateResponse;
-  method: "PUT";
-};
-
-export type ZonosCartByIdOperation = {
-  payload: CartByIdPayload;
-  endpoint: "/api/commerce/cart/{id}";
-  data: CartByIdResponse;
-  method: "GET";
-};
+export type ZonosCartCreateItem = ZonosCartCreateInput["items"][number];

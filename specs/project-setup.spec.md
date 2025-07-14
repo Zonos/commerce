@@ -211,19 +211,15 @@ git merge upstream/main
 
 ### Environment Variables
 
-Create a `.env.example` file with the following variables (based on Next.js Commerce approach):
+Create a `.env.example` file with the following variables:
 
 ```
 # Zonos
-ZONOS_API_KEY=your_api_key
-NEXT_PUBLIC_ZONOS_ENVIRONMENT=sandbox
+CUSTOMER_GRAPH_TOKEN=your_api_token
 ZONOS_REVALIDATION_SECRET=your_revalidation_secret
-
-# Deployment
-DEPLOYMENT_PLATFORM=vercel|cloudflare
-
-# General
-COMPANY_NAME=Zonos Commerce
+NEXT_PUBLIC_ZONOS_API_KEY=your_public_api_key
+NEXT_PUBLIC_ZONOS_STORE_ID=your_store_id
+NEXT_PUBLIC_ZONOS_CDN_URL=https://cdn.zonos.com/elements.js
 NEXT_PUBLIC_SITE_NAME=Zonos Commerce
 ```
 

@@ -20,15 +20,15 @@ The following Zonos Elements API endpoints will be integrated:
 
 ## Authentication
 
-All Zonos Elements API requests will be authenticated using the CUSTOMER_GRAPH_TOKEN, which can be retrieved from the Zonos Dashboard.
+All Zonos Elements API requests will be authenticated using the `CUSTOMER_GRAPH_TOKEN`, which can be retrieved from the Zonos Dashboard.
 
-The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed client-side and must only be used in server-side operations. This token provides secure access to the Zonos Graph API and is used for all server-side API calls.
+The `CUSTOMER_GRAPH_TOKEN` is a secret API token that must never be exposed client-side and must only be used in server-side operations. This token provides secure access to the Zonos Graph API and is used for all server-side API calls via the Zonos TypeScript SDK.
 
 For the upcoming Zonos Checkout integration, a separate public API key (`NEXT_PUBLIC_ZONOS_API_KEY`) will be used. This organization key is designed for client-side usage and allows verification of organization access to the graph and checking for allowed domains in the Zonos Elements API. Unlike the `CUSTOMER_GRAPH_TOKEN`, this key can safely be included in client-side code.
 
-## Type Definitions
+### Type Definitions
 
-The integration defines TypeScript interfaces for all key data structures:
+The integration uses Zonos TypeScript SDK types for all key data structures (e.g., ZonosCart, ZonosCartItem, etc.).
 
 ### Cart Types
 

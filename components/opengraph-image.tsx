@@ -1,4 +1,5 @@
 import { readFile } from "fs/promises";
+import { env } from "lib/zonos/environment";
 import { ImageResponse } from "next/og";
 import { join } from "path";
 import LogoIcon from "./icons/logo";
@@ -12,7 +13,7 @@ export default async function OpengraphImage(
 ): Promise<ImageResponse> {
   const { title } = {
     ...{
-      title: process.env.NEXT_PUBLIC_SITE_NAME,
+      title: env.NEXT_PUBLIC_SITE_NAME,
     },
     ...props,
   };

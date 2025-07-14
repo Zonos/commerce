@@ -12,24 +12,12 @@ Unit tests will verify the functionality of individual units of code in isolatio
 
 #### Implementation Status
 
-As of the initial implementation, we have set up Vitest for testing pure functions that don't require DOM interaction. The current test suite includes:
+As of the current implementation, we have set up Vitest for testing pure functions and SDK-based cart logic. The current test suite includes:
 
-- Utility functions in `lib/utils.ts`:
-  - `createUrl` and `ensureStartsWith` 
-  - `validateEnvironmentVariables` for environment variable validation
-- API configuration in `lib/zonos/api-config.ts`:
-  - `getZonosApiEndpoint` for constructing API endpoints
-  - `getZonosApiUrl` for platform-specific API base URLs
-- Server Actions in `components/cart/actions.ts`:
-  - `addItem` for adding items to the cart
-  - `removeItem` for removing items from the cart
-  - `updateItemQuantity` for updating item quantities
-  - `redirectToCheckout` for redirecting to checkout
-  - `createCartAndSetCookie` for creating a cart and setting cookies
-- API client in `lib/zonos`:
-  - `zonosFetch` for making API requests to Zonos endpoints
-- Cart functionality in `lib/zonos`:
-  - Cart creation, updating, and management functions
+- Utility functions in `lib/utils.ts`
+- Server Actions in `components/cart/actions.ts`
+- API client functions in `lib/zonos` (using the Zonos SDK)
+- Environment variable validation
 
 Future implementations will include:
 - React component testing with React Testing Library

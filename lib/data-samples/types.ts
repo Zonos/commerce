@@ -1,3 +1,8 @@
+import type {
+  ZonosCountryCode,
+  ZonosItemMeasurement,
+} from "@zonos/typescript-sdk";
+
 export type Maybe<T> = T | null;
 
 export type Connection<T> = {
@@ -49,6 +54,9 @@ export type Product = {
   id: string;
   handle: string;
   availableForSale: boolean;
+  countryOfOrigin?: ZonosCountryCode;
+  provinceOfOrigin?: string;
+  measurements?: ZonosItemMeasurement[];
   title: string;
   description: string;
   descriptionHtml: string;

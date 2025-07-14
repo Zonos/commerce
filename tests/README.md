@@ -4,7 +4,7 @@ This project uses Vitest for unit testing.
 
 ## Testing Structure
 
-- `tests/unit/`: Contains unit tests for pure functions
+- `tests/unit/`: Contains unit tests for pure functions and SDK-based cart logic
 - Future component testing will be done with Storybook
 - Future integration and E2E testing will be done with Playwright
 
@@ -65,4 +65,5 @@ The Vitest configuration is in `vitest.config.ts` at the root of the project. It
 - Write tests that are independent of each other
 - Use descriptive test names that explain what's being tested
 - Focus on behavior, not implementation details
-- Keep tests simple and focused on a single assertion when possible 
+- Keep tests simple and focused on a single assertion when possible
+- Prefer using the Zonos SDK types and logic for all cart-related tests 

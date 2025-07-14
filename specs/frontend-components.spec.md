@@ -176,16 +176,17 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
 'use client';
 
 import { useState } from 'react';
-import { addToCart } from '@/app/actions';
+import { addToCart } from '@/components/cart/actions';
 import { Button } from '@/components/ui/button';
 
 export function AddToCart({ productId }: { productId: string }) {
-  const [isPending, startTransition] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   
   return (
-    <form action={(formData) => {
-      startTransition(true);
-      addToCart(formData);
+    <form action={async (formData) => {
+      setIsPending(true);
+      await addToCart({ sku: productId, quantity: 1 });
+      setIsPending(false);
     }}>
       <input type="hidden" name="productId" value={productId} />
       <Button type="submit" disabled={isPending}>
@@ -209,7 +210,7 @@ export async function Cart() {
   
   return (
     <div className="cart">
-      <CartItems items={cart.items} />
+      <CartItems items={cart?.items || []} />
       <CartSummary cart={cart} />
     </div>
   );
