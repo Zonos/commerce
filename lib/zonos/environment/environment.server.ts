@@ -10,6 +10,8 @@ import { schemaUrl, skipEnvValidation } from "./environment.base";
 export const serverEnv = createEnv({
   skipValidation: skipEnvValidation,
   server: {
+    VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
+
     // Zonos API variables
     CUSTOMER_GRAPH_TOKEN: z.string(),
     ZONOS_DEFAULT_URL: schemaUrl.optional(),
@@ -23,6 +25,7 @@ export const serverEnv = createEnv({
     throw new Error("Invalid environment variables");
   },
   runtimeEnvStrict: {
+    VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
     CUSTOMER_GRAPH_TOKEN: process.env.CUSTOMER_GRAPH_TOKEN,
     ZONOS_DEFAULT_URL: process.env.ZONOS_DEFAULT_URL,
     ZONOS_REVALIDATION_SECRET: process.env.ZONOS_REVALIDATION_SECRET,
