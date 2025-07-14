@@ -187,9 +187,16 @@ const createMockCart = (
   totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
   checkoutUrl: "#",
   cost: {
-    totalAmount: { amount: items.reduce((total, item) => total + (item.amount * item.quantity), 0).toFixed(2), currencyCode: "USD" as ZonosCurrencyCode },
+    totalAmount: {
+      amount: items
+        .reduce((total, item) => total + item.amount * item.quantity, 0)
+        .toFixed(2),
+      currencyCode: "USD" as ZonosCurrencyCode,
+    },
     subtotalAmount: {
-      amount: items.reduce((total, item) => total + (item.amount * item.quantity), 0).toFixed(2),
+      amount: items
+        .reduce((total, item) => total + item.amount * item.quantity, 0)
+        .toFixed(2),
       currencyCode: "USD" as ZonosCurrencyCode,
     },
   },
