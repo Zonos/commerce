@@ -4,7 +4,8 @@ import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { updateItemQuantity } from "components/cart/actions";
 import { useCart } from "components/cart/cart-context";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 
 export function EditItemQuantityButton({
   item,
@@ -18,6 +19,12 @@ export function EditItemQuantityButton({
 }) {
   const { updateCartItem } = useCart();
   const [message, formAction] = useActionState(updateItemQuantity, null);
+
+  useEffect(() => {
+    if (message) {
+      toast.error(message);
+    }
+  }, [message]);
 
   const payload = {
     sku: item.sku,

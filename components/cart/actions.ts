@@ -32,9 +32,7 @@ export async function addItem(
     cookieStore.set("cartId", cartResult?.id);
 
     revalidateTag(TAGS.cart);
-    return cartResult?.id;
-  } catch (error) {
-    console.error(error);
+  } catch {
     return "Error adding item to cart";
   }
 }
@@ -60,7 +58,6 @@ export async function removeItem(
       cookieStore.set("cartId", cartResult.id);
 
       revalidateTag(TAGS.cart);
-      return cartResult.id;
     } else {
       return "Item not found in cart";
     }
@@ -86,8 +83,6 @@ export async function updateItemQuantity(
 
     const lineItem = cart.items.find((line) => line.sku === sku);
 
-    let cartId: string | null = null;
-
     if (lineItem && lineItem.id) {
       if (quantity === 0) {
         const cartResult = await removeFromCart({
@@ -98,7 +93,6 @@ export async function updateItemQuantity(
         // Set the cartId to the cookie
         const cookieStore = await cookies();
         cookieStore.set("cartId", cartResult.id);
-        cartId = cartResult.id;
       } else {
         const cartResult = await updateCart({
           cart,
@@ -111,7 +105,6 @@ export async function updateItemQuantity(
         });
         const cookieStore = await cookies();
         cookieStore.set("cartId", cartResult.id);
-        cartId = cartResult.id;
       }
     } else if (quantity > 0) {
       const cartResult = await addToCart({
@@ -123,11 +116,9 @@ export async function updateItemQuantity(
       // Set the cartId to the cookie
       const cookieStore = await cookies();
       cookieStore.set("cartId", cartResult.id);
-      cartId = cartResult.id;
     }
 
     revalidateTag(TAGS.cart);
-    return cartId;
   } catch (error) {
     console.error(error);
     return "Error updating item quantity";

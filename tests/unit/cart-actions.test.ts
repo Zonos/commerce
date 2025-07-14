@@ -187,9 +187,9 @@ const createMockCart = (
   totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
   checkoutUrl: "#",
   cost: {
-    totalAmount: { amount: "10.00", currencyCode: "USD" as ZonosCurrencyCode },
+    totalAmount: { amount: items.reduce((total, item) => total + (item.amount * item.quantity), 0).toFixed(2), currencyCode: "USD" as ZonosCurrencyCode },
     subtotalAmount: {
-      amount: "10.00",
+      amount: items.reduce((total, item) => total + (item.amount * item.quantity), 0).toFixed(2),
       currencyCode: "USD" as ZonosCurrencyCode,
     },
   },
@@ -209,6 +209,9 @@ describe("Cart Actions", () => {
   describe("addItem", () => {
     it("should add item to cart when cart is empty", async () => {
       const mockCart = createMockCart();
+      const expectedCart = createMockCart([
+        createMockCartItem({ id: "item-1", sku: "variant-1-1", quantity: 1 }),
+      ]);
       vi.mocked(addToCart).mockImplementation(
         (await vi.importActual<typeof import("lib/zonos")>("lib/zonos"))
           .addToCart,
@@ -216,11 +219,11 @@ describe("Cart Actions", () => {
       vi.mocked(zonosClient.cartUpsert).mockResolvedValue({
         errors: [],
         json: {
-          cartUpsert: mockCart,
+          cartUpsert: expectedCart,
         },
       });
 
-      const result = await addItem(null, { sku: "variant-1-1", quantity: 1 });
+      await addItem(null, { sku: "variant-1-1", quantity: 1 });
 
       expect(addToCart).toHaveBeenCalledWith({
         sku: "variant-1-1",
@@ -241,7 +244,10 @@ describe("Cart Actions", () => {
           },
         },
       });
-      expect(result, "should return the cart id").toEqual(mockCart.id);
+      // expect addToCart to return the cart id
+      await expect(
+        vi.mocked(addToCart).mock.results[0]?.value,
+      ).resolves.toStrictEqual(expectedCart);
     });
 
     it("should increment item quantity when item already exists in cart", async () => {
@@ -275,7 +281,7 @@ describe("Cart Actions", () => {
         },
       });
 
-      const result = await addItem(null, { sku: "variant-1-1", quantity: 1 });
+      await addItem(null, { sku: "variant-1-1", quantity: 1 });
 
       expect(addToCart).toHaveBeenCalledWith({
         sku: "variant-1-1",
@@ -297,7 +303,11 @@ describe("Cart Actions", () => {
           },
         },
       });
-      expect(result, "should return the cart id").toEqual(mockCart.id);
+
+      // expect addToCart to return the cart id
+      await expect(
+        vi.mocked(addToCart).mock.results[0]?.value,
+      ).resolves.toStrictEqual(expectedCart);
     });
 
     it("should return error if sku is missing", async () => {
@@ -350,7 +360,7 @@ describe("Cart Actions", () => {
         },
       });
 
-      const cartId = await removeItem(null, "item-1");
+      await removeItem(null, "item-1");
 
       expect(removeFromCart).toHaveBeenCalledWith({
         cart: mockCart,
@@ -373,7 +383,9 @@ describe("Cart Actions", () => {
           },
         },
       });
-      expect(cartId).toBe(mockCart.id);
+      await expect(
+        vi.mocked(removeFromCart).mock.results[0]?.value,
+      ).resolves.toStrictEqual(expectedCart);
     });
 
     it("should return error if cart is not found", async () => {
@@ -444,7 +456,7 @@ describe("Cart Actions", () => {
         },
       });
 
-      const result = await updateItemQuantity(null, {
+      await updateItemQuantity(null, {
         sku: "variant-1-1",
         quantity: 2,
       });
@@ -476,7 +488,9 @@ describe("Cart Actions", () => {
           },
         },
       });
-      expect(result).toBe(mockCart.id);
+      await expect(
+        vi.mocked(updateCart).mock.results[0]?.value,
+      ).resolves.toStrictEqual(expectedCart);
     });
 
     it("should remove item if quantity is 0", async () => {
@@ -499,7 +513,7 @@ describe("Cart Actions", () => {
         },
       });
 
-      const result = await updateItemQuantity(null, {
+      await updateItemQuantity(null, {
         sku: "variant-1-1",
         quantity: 0,
       });
@@ -521,7 +535,9 @@ describe("Cart Actions", () => {
           },
         },
       });
-      expect(result).toBe(mockCart.id);
+      await expect(
+        vi.mocked(removeFromCart).mock.results[0]?.value,
+      ).resolves.toStrictEqual(expectedCart);
     });
 
     it("should add item if it doesn't exist in cart (this should not happen as this is to adjust the quantity of existing items, but we handle it just in case)", async () => {
@@ -553,7 +569,7 @@ describe("Cart Actions", () => {
         },
       });
 
-      const result = await updateItemQuantity(null, {
+      await updateItemQuantity(null, {
         sku: "variant-1-1",
         quantity: 1,
       });
@@ -575,7 +591,9 @@ describe("Cart Actions", () => {
           },
         },
       });
-      expect(result).toBe(mockCart.id);
+      await expect(
+        vi.mocked(addToCart).mock.results[0]?.value,
+      ).resolves.toStrictEqual(expectedCart);
     });
 
     it("should return an error if updateCart throws", async () => {

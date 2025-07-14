@@ -48,7 +48,7 @@ export default async function RootLayout({
             <Navbar />
             <main>
               {children}
-              <Toaster closeButton />
+              <Toaster closeButton richColors position="bottom-center" />
             </main>
           </CartProvider>
         </ZonosLayoutSetup>
