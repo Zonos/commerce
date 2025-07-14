@@ -190,6 +190,7 @@ export async function addToCart({
   });
 
   if (!res.json?.cartUpsert) {
+    console.error(res.errors);
     throw new Error("Failed to create cart");
   }
 
