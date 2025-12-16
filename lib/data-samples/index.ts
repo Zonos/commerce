@@ -5,8 +5,8 @@ import { pageStubs } from "lib/data-samples/samples/pages";
 import { productStubs } from "lib/data-samples/samples/products";
 import type { Collection, Menu, Page, Product } from "lib/data-samples/types";
 import {
-  unstable_cacheLife as cacheLife,
-  unstable_cacheTag as cacheTag,
+  cacheLife,
+  cacheTag,
 } from "next/cache";
 import { NextResponse } from "next/server";
 
