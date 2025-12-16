@@ -2,10 +2,9 @@ import type { NextConfig } from "next";
 
 export default {
   experimental: {
-    ppr: true,
     inlineCss: true,
-    useCache: true,
   },
+  cacheComponents: true,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
