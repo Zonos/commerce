@@ -4,10 +4,7 @@ import { menuStubs } from "lib/data-samples/samples/menu";
 import { pageStubs } from "lib/data-samples/samples/pages";
 import { productStubs } from "lib/data-samples/samples/products";
 import type { Collection, Menu, Page, Product } from "lib/data-samples/types";
-import {
-  cacheLife,
-  cacheTag,
-} from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function getCollection(

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export const Copyright = () => {
   const currentYear = new Date().getFullYear();
@@ -7,10 +7,8 @@ export const Copyright = () => {
   return (
     <p>
       &copy; {copyrightDate} {copyrightName}
-      {copyrightName.length && !copyrightName.endsWith(".")
-        ? "."
-        : ""}{" "}
-      All rights reserved.
+      {copyrightName.length && !copyrightName.endsWith(".") ? "." : ""} All
+      rights reserved.
     </p>
   );
 };
