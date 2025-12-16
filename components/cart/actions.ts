@@ -31,7 +31,7 @@ export async function addItem(
     const cookieStore = await cookies();
     cookieStore.set("cartId", cartResult?.id);
 
-    revalidateTag(TAGS.cart, 'max');
+    revalidateTag(TAGS.cart, 'seconds');
   } catch {
     return "Error adding item to cart";
   }
@@ -57,7 +57,7 @@ export async function removeItem(
       const cookieStore = await cookies();
       cookieStore.set("cartId", cartResult.id);
 
-      revalidateTag(TAGS.cart, 'max');
+      revalidateTag(TAGS.cart, 'seconds');
     } else {
       return "Item not found in cart";
     }
@@ -118,7 +118,7 @@ export async function updateItemQuantity(
       cookieStore.set("cartId", cartResult.id);
     }
 
-    revalidateTag(TAGS.cart, 'max');
+    revalidateTag(TAGS.cart, 'seconds');
   } catch (error) {
     console.error(error);
     return "Error updating item quantity";
