@@ -32,20 +32,6 @@ updates:
           - "minor"
           - "patch"
 
-  # Enable version updates for Docker dependencies
-  - package-ecosystem: "docker"
-    directory: "/.github"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    # Open pull requests for version updates
-    open-pull-requests-limit: 5
-    # Commit message preferences
-    commit-message:
-      prefix: "docker"
-      include: "scope"
-
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
