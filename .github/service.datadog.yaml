@@ -1,0 +1,33 @@
+apiVersion: v3
+kind: service
+metadata:
+  name: commerce
+  owner: team-19
+  additionalOwners:
+    - name: devops
+      type: infra
+  tags:
+    - language:typescript
+    - cloud_provider:aws
+  contacts:
+    - name: team-19-checkout
+      type: slack
+      contact: https://zonos.slack.com/archives/C07TVDT9058
+  links:
+    - name: Source Code
+      type: repo
+      url: https://github.com/Zonos/commerce
+      provider: github
+spec:
+  lifecycle: production
+  tier: "bronze"
+  type: web
+  languages:
+    - typescript
+datadog:
+  codeLocations:
+    - repositoryURL: https://github.com/Zonos/commerce
+extensions:
+  datadoghq.com/ci-pipelines:
+    - name: commerce
+      provider: github
